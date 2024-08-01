@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -9,10 +9,17 @@ import backgroundImage from '../../assets/bg.jpg';
 
 const UserLogin = () => {
   const dispatch = useDispatch();
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
   const { loading, error } = useSelector((state) => state.auth);
   const [formError, setFormError] = useState('');
   const navigate = useNavigate();
   const baseURL = 'http://127.0.0.1:8000/';
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/user/home');
+    }
+  }, [isAuthenticated, navigate]);
 
   const [formData, setFormData] = useState({
     email: '',

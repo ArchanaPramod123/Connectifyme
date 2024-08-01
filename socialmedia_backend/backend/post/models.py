@@ -34,10 +34,13 @@ class Comment(models.Model):
     created_at=models.DateTimeField(auto_now_add=True)
 
     def __str__(self) -> str:
-        return '%s - %s - %s' % (self.post.id,self.body,self.user.first_name)
+        return '%s - %s - %s' % (self.post.id,self.body,self.user.full_name)
     
     def created_time(self):
         return timesince(self.created_at)
+    
+    def formatted_created_at(self):
+        return self.created_at.strftime('%Y-%m-%d %H:%M:%S')
     
 class Follow(models.Model):
     follower = models.ForeignKey(User,related_name='followers',on_delete=models.CASCADE)

@@ -8,7 +8,7 @@ import UserWrapper from './components/user/UserWrapper'
 import AdminWrapper from './components/admin/AdminWrapper'
 
 function App() {
-  const [count, setCount] = useState(0)
+  // const [count, setCount] = useState(0)
 
   return (
     <>

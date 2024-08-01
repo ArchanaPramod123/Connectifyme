@@ -7,6 +7,7 @@ import VerifyOTP from '../../common/Otppage'
 import CreatePostPage from '../../pages/user/post/CreatePost'
 import UserProfilePage from '../../pages/user/UserProfilePage'
 
+
 const UserWrapper = () => {
   return (
     <div>
