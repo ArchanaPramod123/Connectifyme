@@ -6,6 +6,7 @@ import UserHome from '../../pages/user/UserHome'
 import VerifyOTP from '../../common/Otppage'
 import CreatePostPage from '../../pages/user/post/CreatePost'
 import UserProfilePage from '../../pages/user/UserProfilePage'
+import ProfilePage from '../../pages/user/CreateProfile'
 
 
 const UserWrapper = () => {
@@ -18,6 +19,7 @@ const UserWrapper = () => {
             <Route path='/home' element={<UserHome></UserHome>}></Route>
             <Route path='/create-post' element={<CreatePostPage/>}></Route>
             <Route path='/profile' element={<UserProfilePage/>}></Route>
+            <Route path='/profile-setup' element={<ProfilePage />} />
         </Routes>
       
     </div>

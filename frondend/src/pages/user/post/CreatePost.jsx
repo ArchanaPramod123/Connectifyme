@@ -148,6 +148,7 @@ import styled from 'styled-components';
 import { useNavigate } from 'react-router-dom';
 import Modal from 'react-modal';
 import CropImage from './crop/CropImage';
+import { Toaster, toast } from 'sonner'; 
 
 const CreatePostContainer = styled.div`
   width: 600px;
@@ -238,10 +239,12 @@ const CreatePostPage = ({ isOpen, onRequestClose, fetchPosts }) => {
         },
       });
       fetchPosts(); // Fetch the updated list of posts
+      toast.success('Post created successfully');
       navigate('/user/home');
       onRequestClose();
     } catch (error) {
       setError('Error creating post');
+      toast.error('Failed to create post');
     }
   };
 

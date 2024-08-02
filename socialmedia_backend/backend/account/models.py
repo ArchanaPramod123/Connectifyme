@@ -40,6 +40,9 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=True)
     otp = models.CharField(max_length=6, blank=True, null=True)
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    username = models.CharField(max_length=50, unique=True, blank=True, null=True)
+    # background_image = models.ImageField(upload_to='background_images/', blank=True, null=True)
+    bio = models.TextField(max_length=500, blank=True, null=True)
     # followers = models.ManyToManyField('self', symmetrical=False, related_name='following', blank=True)
 
     USERNAME_FIELD  = 'email'

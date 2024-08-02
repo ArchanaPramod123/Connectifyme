@@ -90,6 +90,57 @@ class ResendOtpView(APIView):
             )
 
 
+# class LoginView(APIView):
+#     permission_classes = []
+
+#     def post(self, request):
+#         email = request.data.get("email")
+#         password = request.data.get("password")
+
+#         if not email or not password:
+#             return Response(
+#                 {"message": "Both email and password are required."},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#             )
+
+#         try:
+#             user = User.objects.get(email=email)
+#         except User.DoesNotExist:
+#             return Response(
+#                 {"message": "Invalid email address."},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#             )
+
+#         if not user.is_active:
+#             return Response(
+#                 {"message": "Your account is inactive."},
+#                 status=status.HTTP_403_FORBIDDEN,
+#             )
+
+#         user = authenticate(username=email, password=password)
+
+#         if user is None:
+#             return Response(
+#                 {"message": "Invalid email or password."},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#             )
+
+#         refresh = RefreshToken.for_user(user)
+#         access_token = str(refresh.access_token)
+#         refresh_token = str(refresh)
+
+#         profile_complete = bool(user.full_name and user.profile_picture and user.background_image and user.bio)
+
+#         content = {
+#             "email": user.email,
+#             "name": user.full_name,
+#             "access_token": access_token,
+#             "refresh_token": refresh_token,
+#             "isAdmin": user.is_superuser,
+#             "profile_complete": profile_complete,
+#         }
+#         return Response(content, status=status.HTTP_200_OK)
+
 class LoginView(APIView):
     permission_classes = []
 
@@ -129,16 +180,36 @@ class LoginView(APIView):
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
 
+        profile_complete = bool(user.username and user.profile_picture and user.bio)
+        print("profilllleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",profile_complete)
+
         content = {
             "email": user.email,
             "name": user.full_name,
             "access_token": access_token,
             "refresh_token": refresh_token,
             "isAdmin": user.is_superuser,
+            "profile_complete": profile_complete,
         }
         return Response(content, status=status.HTTP_200_OK)
 
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
 
+    def get(self, request):
+        user = request.user
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def patch(self, request):
+        user = request.user
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            if 'profile_picture' in request.data:
+                user.profile_picture = request.data['profile_picture']
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 class AdminLoginView(APIView):
     permission_classes = []
 

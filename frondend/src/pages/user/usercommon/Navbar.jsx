@@ -262,7 +262,7 @@ const NavBar = ({ fetchPosts }) => {
 
   return (
     <SidebarContainer>
-      <Logo to="/user/home">YourApp</Logo>
+      <Logo to="/user/home">Connectify</Logo>
       <NavIcons>
         <NavIcon>
           <Link to="/user/home">

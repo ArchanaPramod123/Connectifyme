@@ -4,20 +4,35 @@ from .models import Posts,Comment,Follow
 from account.serializers import UserSerializer
 
 # class PostSerializer(serializers.ModelSerializer):
-#     user = UserSerializer()
-#     img = serializers.ImageField(use_url=True)
+#     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)  # Accept user ID for creation
+#     is_liked = serializers.SerializerMethodField()
 
 #     class Meta:
 #         model = Posts
-#         fields = ['id', 'body', 'user', 'img', 'total_likes', 'created_time']
+#         fields = ['id', 'body', 'user', 'img', 'total_likes', 'created_time','is_liked']
+
+#     def to_representation(self, instance):
+#         response = super().to_representation(instance)
+#         response['user'] = UserSerializer(instance.user).data  # Include full user data in the response
+#         return response
+    
+#     def get_is_liked(self, obj):
+#         request = self.context.get('request', None)
+#         if request:
+#             return obj.likes.filter(id=request.user.id).exists()
+#         return False
+
+
 
 class PostSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)  # Accept user ID for creation
     is_liked = serializers.SerializerMethodField()
+    # img = serializers.SerializerMethodField()
+    img = serializers.ImageField(required=False)
 
     class Meta:
         model = Posts
-        fields = ['id', 'body', 'user', 'img', 'total_likes', 'created_time','is_liked']
+        fields = ['id', 'body', 'user', 'img', 'total_likes', 'created_time', 'is_liked']
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -29,7 +44,12 @@ class PostSerializer(serializers.ModelSerializer):
         if request:
             return obj.likes.filter(id=request.user.id).exists()
         return False
-
+    def get_img(self, obj):
+        request = self.context.get('request')
+        if obj.img and request:
+            return request.build_absolute_uri(obj.img.url)
+        return None
+    
 class UserSerializerProfile(serializers.ModelSerializer):
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
@@ -46,7 +66,7 @@ class UserSerializerProfile(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['full_name', 'email', 'phone', 'profile_picture', 'follower_count', 'following_count', 'total_posts']
+        fields = ['full_name', 'email', 'username', 'bio', 'profile_picture', 'phone', 'follower_count', 'following_count', 'total_posts']
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:

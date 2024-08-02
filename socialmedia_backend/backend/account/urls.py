@@ -15,6 +15,7 @@ urlpatterns = [
     # path('profile/', UserProfileView.as_view(), name='user-profile'),
     path('verify-otp/', OtpVerificationView.as_view(), name='verify_otp'),
     path('resend-otp/', ResendOtpView.as_view(), name='resend_otp'),
+    path('create-profile/', UserProfileView.as_view(), name='create_profile'),
 
     path('adminlogin/',AdminLoginView.as_view(),name="adminlogin"),
     path('user-list/', UserListView.as_view(), name='user_list'),

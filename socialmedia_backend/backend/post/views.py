@@ -15,11 +15,21 @@ class CreatePostView(APIView):
         data['user'] = user.id 
         print('Request Data:', data)  # Debugging
 
-        serializer = PostSerializer(data=data)
+        serializer = PostSerializer(data=data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class ListPostsView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request, *args, **kwargs):
+#         posts = Posts.objects.filter(user__is_superuser=False, is_deleted=False).order_by('-created_at')
+#         serializer = PostSerializer(posts, many=True,context={'request': request})
+#         print("serilizerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr:",serializer.data)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ListPostsView(APIView):
@@ -27,24 +37,38 @@ class ListPostsView(APIView):
 
     def get(self, request, *args, **kwargs):
         posts = Posts.objects.filter(user__is_superuser=False, is_deleted=False).order_by('-created_at')
-        serializer = PostSerializer(posts, many=True)
+        serializer = PostSerializer(posts, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
     
+
+# class UserProfileView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def get(self, request):
+#         user = request.user
+#         user_serializer = UserSerializerProfile(user)
+#         user_posts = Posts.objects.filter(user=user, is_deleted=False).order_by('-created_at')
+#         posts_serializer = PostSerializer(user_posts, many=True)
+        
+#         data = {
+#             'profile': user_serializer.data,
+#             'posts': posts_serializer.data
+#         }
+#         return Response(data)
 
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
-        user_serializer = UserSerializerProfile(user)
+        serializer = UserSerializerProfile(user)
         user_posts = Posts.objects.filter(user=user, is_deleted=False).order_by('-created_at')
-        posts_serializer = PostSerializer(user_posts, many=True)
-        
-        data = {
-            'profile': user_serializer.data,
-            'posts': posts_serializer.data
-        }
-        return Response(data)
+        posts_serializer = PostSerializer(user_posts, many=True,context={'request': request})
+        print("profile print images",posts_serializer.data)
+        return Response({'profile': serializer.data,'posts': posts_serializer.data})
+    
+
+
 class UpdateUserView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -83,50 +107,7 @@ class PostLikeView(APIView):
             # 'like':post.likes
         }, status=status.HTTP_200_OK)
         # return Response({'total_likes': post.total_likes(),'is_liked': liked}, status=status.HTTP_200_OK)
-  
-# class CommentCreateView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def post(self, request, pk):
-#         print("request.user.id", request.user.id)
-#         try:
-#             post = Posts.objects.get(pk=pk)
-#         except Posts.DoesNotExist:
-#             return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
-
-#         serializer = CommentSerializer(data=request.data, context={'request': request})
-#         if serializer.is_valid():
-#             serializer.save(user=request.user.id, post=post)
-#             comments = Comment.objects.filter(post=post).order_by('-created_at')
-#             return Response(CommentSerializer(comments, many=True).data, status=status.HTTP_201_CREATED)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-# class CommentUpdateDeleteView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def put(self, request, pk):
-#         try:
-#             comment = Comment.objects.get(pk=pk, user=request.user)
-#         except Comment.DoesNotExist:
-#             return Response({"error": "Comment not found or not authorized"}, status=status.HTTP_404_NOT_FOUND)
-
-#         serializer = CommentSerializer(comment, data=request.data, partial=True)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     def delete(self, request, pk):
-#         try:
-#             comment = Comment.objects.get(pk=pk, user=request.user)
-#         except Comment.DoesNotExist:
-#             return Response({"error": "Comment not found or not authorized"}, status=status.HTTP_404_NOT_FOUND)
-
-#         comment.delete()
-#         return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
+ 
 class CommentListView(APIView):
     permission_classes = [IsAuthenticated]
 
