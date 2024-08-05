@@ -177,6 +177,10 @@ class LoginView(APIView):
             )
 
         refresh = RefreshToken.for_user(user)
+        refresh['name'] = user.full_name
+        refresh['email'] = user.email
+        refresh['isAuthenticated'] = user.is_authenticated
+        refresh['isAdmin'] = user.is_superuser
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
 

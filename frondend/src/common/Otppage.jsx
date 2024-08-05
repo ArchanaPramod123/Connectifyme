@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import backgroundImage from '../assets/bg.jpg';
+import { Toaster, toast } from 'sonner';
+
 import Swal from 'sweetalert2';
 
 const Otppage = () => {
@@ -58,15 +60,20 @@ const Otppage = () => {
       setMinute(1);
       setSecond(30);
       setResend(false);
-      Swal.fire({
-        position: 'top-end',
-        icon: 'success',
-        title: 'OTP sent',
-        showConfirmButton: false,
-        timer: 1500,
-      });
+      // Swal.fire({
+      //   position: 'top-end',
+      //   icon: 'success',
+      //   title: 'OTP sent',
+      //   showConfirmButton: false,
+      //   timer: 1500,
+      // });
+      toast.success('OTP sent to your email again');
+
+
     } catch (error) {
-      console.error('Error resending OTP:', error);
+      // console.error('Error resending OTP:', error);
+      toast.error('Error resending OTP');
+
     }
   };
 

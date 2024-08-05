@@ -257,6 +257,8 @@ import {jwtDecode} from 'jwt-decode';
 import { set_Authentication } from '../../Redux/Authentication/authenticationSlice';
 import { set_user_basic_details } from '../../Redux/UserDetails/UserDetails';
 import backgroundImage from '../../assets/bg.jpg';
+import { Toaster, toast } from 'sonner';
+
 
 const UserLogin = () => {
   const dispatch = useDispatch();
@@ -311,16 +313,20 @@ const UserLogin = () => {
 
         console.log("response of the data in profile",response.data.profile_complete);
         if (response.data.profile_complete) {
-          console.log("pleaseeeeeeeee goooooooooooo toooooooooooooprofilr");
+          // console.log("pleaseeeeeeeee goooooooooooo toooooooooooooprofilr");
+          toast.success('Successfuly login');
+
           navigate('/user/home');
         } else {
-          console.log("checkkkkkkkkkkkkkkkkkkkkkk");
+          // console.log("checkkkkkkkkkkkkkkkkkkkkkk");
+          toast.info("Complete your account updation")
           navigate('/user/profile-setup');
         }
       }
     } catch (error) {
       setFormError('Invalid email or password');
-      console.log('error', error);
+      // console.log('error', error);
+      toast.error('invalid password or email')
     }
   };
 

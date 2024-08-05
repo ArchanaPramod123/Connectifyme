@@ -101,6 +101,7 @@ import React, { useState, useEffect } from "react";
 import { FaHeart, FaRegHeart, FaRegComment } from "react-icons/fa";
 import axios from "axios";
 import CommentModal from "./CommentModel";
+import { Link } from "react-router-dom";
 
 const Post = ({ post }) => {
   const baseURL = "http://127.0.0.1:8000";
@@ -132,7 +133,9 @@ const Post = ({ post }) => {
       );
       setIsLiked(response.data.is_liked);
       setTotalLikes(response.data.total_likes);
+      toast.success('successfully liked');
     } catch (error) {
+      toast.success('successfully unliked');
       console.error("Error liking/unliking post:", error);
     }
   };
@@ -147,7 +150,10 @@ const Post = ({ post }) => {
             className="w-10 h-10 rounded-full mr-3"
           />
         )}
-        <h2 className="text-lg font-bold">{post.user.full_name}</h2>
+        {/* <h2 className="text-lg font-bold">{post.user.full_name}</h2> */}
+        <Link to={`/user/profile/${post.user.id}`} className="text-lg font-bold">
+          {post.user.full_name}
+        </Link>
       </div>
       {post.img && (
         <img src={post.img} alt="Post" className="w-full mt-3" />

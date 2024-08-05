@@ -469,7 +469,7 @@ import { useNavigate } from 'react-router-dom';
 // import { ToastContainer, toast } from 'react-toastify';
 // import 'react-toastify/dist/ReactToastify.css';
 import { Toaster, toast } from 'sonner';
-import ProfileCrop from './post/crop/ProfileCrop';
+import ProfileCrop from '../post/crop/ProfileCrop';
 
 const baseURL = 'http://127.0.0.1:8000';
 

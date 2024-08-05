@@ -50,23 +50,23 @@ class PostSerializer(serializers.ModelSerializer):
             return request.build_absolute_uri(obj.img.url)
         return None
     
-class UserSerializerProfile(serializers.ModelSerializer):
-    follower_count = serializers.SerializerMethodField()
-    following_count = serializers.SerializerMethodField()
-    total_posts = serializers.SerializerMethodField()
+# class UserSerializerProfile(serializers.ModelSerializer):
+#     follower_count = serializers.SerializerMethodField()
+#     following_count = serializers.SerializerMethodField()
+#     total_posts = serializers.SerializerMethodField()
 
-    def get_follower_count(self, obj):
-        return obj.followers.count()
+#     def get_follower_count(self, obj):
+#         return obj.followers.count()
 
-    def get_following_count(self, obj):
-        return obj.following.count()
+#     def get_following_count(self, obj):
+#         return obj.following.count()
 
-    def get_total_posts(self, obj):
-        return Posts.objects.filter(user=obj, is_deleted=False).count()
+#     def get_total_posts(self, obj):
+#         return Posts.objects.filter(user=obj, is_deleted=False).count()
 
-    class Meta:
-        model = User
-        fields = ['full_name', 'email', 'username', 'bio', 'profile_picture', 'phone', 'follower_count', 'following_count', 'total_posts']
+#     class Meta:
+#         model = User
+#         fields = ['full_name', 'email', 'username', 'bio', 'profile_picture', 'phone', 'follower_count', 'following_count', 'total_posts']
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -96,10 +96,32 @@ class CommentSerializer(serializers.ModelSerializer):
             'post': {'read_only': True}
         }
 
-class FollowSerializer(serializers.ModelSerializer):
-    following = serializers.SlugRelatedField(slug_field='email',queryset=User.objects.all())
-    follower = serializers.SlugRelatedField(slug_field='email',queryset=User.objects.all())
+
+
+# serializers.py
+class UserSerializerProfile(serializers.ModelSerializer):
+    follower_count = serializers.SerializerMethodField()
+    following_count = serializers.SerializerMethodField()
+    total_posts = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
+
+    def get_follower_count(self, obj):
+        return obj.followers.count()
+
+    def get_following_count(self, obj):
+        return obj.following.count()
+
+    def get_total_posts(self, obj):
+        return Posts.objects.filter(user=obj, is_deleted=False).count()
+
+    def get_is_following(self, obj):
+        request = self.context.get('request', None)
+        if request:
+            return Follow.objects.filter(follower=request.user, following=obj).exists()
+        return False
 
     class Meta:
-        model = Follow
-        fields = ['follower','following']
+        model = User
+        fields = ['full_name', 'email', 'username', 'bio', 'profile_picture', 'phone', 'follower_count', 'following_count', 'total_posts', 'is_following']
+
+

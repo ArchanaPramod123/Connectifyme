@@ -2,7 +2,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Posts,Comment
+from .models import Posts,Comment,Follow
+from account.models import User
+from account.serializers import UserSerializer
 from .serializer import PostSerializer,UserSerializerProfile,UserUpdateSerializer,CommentSerializer
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
@@ -41,32 +43,45 @@ class ListPostsView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
+
 # class UserProfileView(APIView):
 #     permission_classes = [IsAuthenticated]
 
 #     def get(self, request):
 #         user = request.user
-#         user_serializer = UserSerializerProfile(user)
+#         serializer = UserSerializerProfile(user)
 #         user_posts = Posts.objects.filter(user=user, is_deleted=False).order_by('-created_at')
-#         posts_serializer = PostSerializer(user_posts, many=True)
-        
-#         data = {
-#             'profile': user_serializer.data,
-#             'posts': posts_serializer.data
-#         }
-#         return Response(data)
+#         posts_serializer = PostSerializer(user_posts, many=True,context={'request': request})
+#         print("profile print images",posts_serializer.data)
+#         return Response({'profile': serializer.data,'posts': posts_serializer.data})
+    
+
 
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
-        user = request.user
+    def get(self, request, user_id=None):
+        if user_id is None:
+            user = request.user
+        else:
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        is_own_profile = (user == request.user)
         serializer = UserSerializerProfile(user)
         user_posts = Posts.objects.filter(user=user, is_deleted=False).order_by('-created_at')
-        posts_serializer = PostSerializer(user_posts, many=True,context={'request': request})
-        print("profile print images",posts_serializer.data)
-        return Response({'profile': serializer.data,'posts': posts_serializer.data})
-    
+        posts_serializer = PostSerializer(user_posts, many=True, context={'request': request})
+        is_following = Follow.objects.filter(follower=request.user, following=user).exists()
+
+        return Response({
+            'profile': serializer.data,
+            'posts': posts_serializer.data,
+            'is_own_profile': is_own_profile,
+            'is_following': is_following
+        })
+
 
 
 class UpdateUserView(APIView):
@@ -79,6 +94,45 @@ class UpdateUserView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# class EditProfileView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def patch(self, request, pk):
+#         user = User.objects.get(pk=pk)
+#         if user != request.user:
+#             return Response({'error': 'You do not have permission to edit this profile.'}, status=status.HTTP_403_FORBIDDEN)
+        
+#         serializer = UserSerializer(user, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             if 'profile_picture' in request.FILES:
+#                 user.profile_picture = request.FILES['profile_picture']
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+class EditProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        if user != request.user:
+            return Response({'error': 'You do not have permission to edit this profile.'}, status=status.HTTP_403_FORBIDDEN)
+
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            if 'profile_picture' in request.FILES:
+                user.profile_picture = request.FILES['profile_picture']
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 class PostLikeView(APIView):
@@ -150,3 +204,34 @@ class CommentDeleteView(APIView):
         comment = get_object_or_404(Comment, pk=comment_id, user=request.user)
         comment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+
+class FollowUnfollowView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, user_id):
+        try:
+            target_user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        if target_user == request.user:
+            return Response({"error": "You cannot follow/unfollow yourself"}, status=status.HTTP_400_BAD_REQUEST)
+
+        follow_relationship, created = Follow.objects.get_or_create(following=request.user, follower=target_user)
+
+        if not created:
+            follow_relationship.delete()
+            is_following = False
+        else:
+            is_following = True
+        print("is folowwwwww",is_following)
+        follower_count = target_user.followers.count()
+        following_count = target_user.following.count()
+
+        return Response({"is_following": is_following, "follower_count": follower_count,
+            "following_count": following_count})
+
+
+

@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import backgroundImage from '../../assets/bg.jpg';
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import { Toaster, toast } from 'sonner';
 import * as Yup from 'yup';
 
 const UserSignUp = () => {
@@ -55,11 +56,12 @@ const UserSignUp = () => {
       await SignupSchema.validate(values, { abortEarly: false });
 
       if (values.password !== values.confirmPassword) {
-        Swal.fire({
-          icon: 'error',
-          title: 'Oops...',
-          text: 'Passwords do not match!',
-        });
+        // Swal.fire({
+        //   icon: 'error',
+        //   title: 'Oops...',
+        //   text: 'Passwords do not match!',
+        // });
+        toast.error('Passwords do not match!');
         return;
       }
 
@@ -73,13 +75,15 @@ const UserSignUp = () => {
 
       if (response.status === 200) {
         localStorage.setItem('email', values.email);
-        Swal.fire({
-          position: 'top-end',
-          icon: 'success',
-          title: 'OTP sent',
-          showConfirmButton: false,
-          timer: 1500,
-        });
+        // Swal.fire({
+        //   position: 'top-end',
+        //   icon: 'success',
+        //   title: 'OTP sent',
+        //   showConfirmButton: false,
+        //   timer: 1500,
+        // });
+        toast.success('OTP sent to your email');
+        
         navigate('/user/otp-verify');
       }
     } catch (error) {
@@ -90,7 +94,8 @@ const UserSignUp = () => {
         });
         setFormErrors(errors);
       } else {
-        console.error('Signup error:', error);
+        // console.error('Signup error:', error);
+        toast.error("Signup error")
         setFormErrors({ general: 'An error occurred during signup. Please try again.' });
       }
     }

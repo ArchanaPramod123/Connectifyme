@@ -1,5 +1,5 @@
 
-
+import {jwtDecode} from 'jwt-decode';
 // // NavBar.jsx
 // import React, { useState } from 'react';
 // import { Link } from 'react-router-dom';
@@ -259,6 +259,9 @@ const NavBar = ({ fetchPosts }) => {
   const closeCreatePostModal = () => {
     setIsCreatePostModalOpen(false);
   };
+  const accessToken = localStorage.getItem('access');
+  let decoded = jwtDecode(accessToken);
+  console.log("user decode",decoded.name);
 
   return (
     <SidebarContainer>

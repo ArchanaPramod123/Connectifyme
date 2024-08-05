@@ -16,7 +16,6 @@ export const authenticationSlice = createSlice(
         state.email = action.payload.email;
         state.isAuthenticated = action.payload.isAuthenticated;
         state.isAdmin = action.payload.isAdmin;
-        state.usertype = action.payload.usertype;
       },
     }
 })
