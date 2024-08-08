@@ -43,6 +43,7 @@ class User(AbstractBaseUser):
     username = models.CharField(max_length=50, unique=True, blank=True, null=True)
     # background_image = models.ImageField(upload_to='background_images/', blank=True, null=True)
     bio = models.TextField(max_length=500, blank=True, null=True)
+    is_private = models.BooleanField(default=False)  # Add this line
     # followers = models.ManyToManyField('self', symmetrical=False, related_name='following', blank=True)
 
     USERNAME_FIELD  = 'email'

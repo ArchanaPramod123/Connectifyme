@@ -2,61 +2,47 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Posts,Comment,Follow
+from .models import Posts, Comment, Follow
 from account.models import User
 from account.serializers import UserSerializer
-from .serializer import PostSerializer,UserSerializerProfile,UserUpdateSerializer,CommentSerializer
+from .serializer import (
+    PostSerializer,
+    UserSerializerProfile,
+    UserUpdateSerializer,
+    CommentSerializer,
+)
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 
 
+# ------------------------------post creation, post list-------------------------------------------------------------------
 class CreatePostView(APIView):
     def post(self, request, *args, **kwargs):
         user = request.user
-        data = request.data.copy()
-        data['user'] = user.id 
-        print('Request Data:', data)  # Debugging
+        data = request.data
+        data["user"] = user.id
+        print("Request Data:", data) 
 
-        serializer = PostSerializer(data=data, context={'request': request})
+        serializer = PostSerializer(data=data, context={"request": request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class ListPostsView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request, *args, **kwargs):
-#         posts = Posts.objects.filter(user__is_superuser=False, is_deleted=False).order_by('-created_at')
-#         serializer = PostSerializer(posts, many=True,context={'request': request})
-#         print("serilizerrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr:",serializer.data)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 class ListPostsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        posts = Posts.objects.filter(user__is_superuser=False, is_deleted=False).order_by('-created_at')
-        serializer = PostSerializer(posts, many=True, context={'request': request})
+        posts = Posts.objects.filter(
+            user__is_superuser=False, is_deleted=False
+        ).order_by("-created_at")
+        serializer = PostSerializer(posts, many=True, context={"request": request})
+        print("serializerrrrrrrrrrrrrrrrrrrrrrr:",serializer)
         return Response(serializer.data, status=status.HTTP_200_OK)
-    
 
 
-# class UserProfileView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def get(self, request):
-#         user = request.user
-#         serializer = UserSerializerProfile(user)
-#         user_posts = Posts.objects.filter(user=user, is_deleted=False).order_by('-created_at')
-#         posts_serializer = PostSerializer(user_posts, many=True,context={'request': request})
-#         print("profile print images",posts_serializer.data)
-#         return Response({'profile': serializer.data,'posts': posts_serializer.data})
-    
-
-
+# ------------------------------User profile , user profile update----------------------------------------------------------------------------------------------------------------
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -67,21 +53,41 @@ class UserProfileView(APIView):
             try:
                 user = User.objects.get(id=user_id)
             except User.DoesNotExist:
-                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+                return Response(
+                    {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+                )
 
-        is_own_profile = (user == request.user)
-        serializer = UserSerializerProfile(user)
-        user_posts = Posts.objects.filter(user=user, is_deleted=False).order_by('-created_at')
-        posts_serializer = PostSerializer(user_posts, many=True, context={'request': request})
-        is_following = Follow.objects.filter(follower=request.user, following=user).exists()
+        is_own_profile = user == request.user
+        serializer = UserSerializerProfile(user, context={"request": request})
+        user_posts = Posts.objects.filter(user=user, is_deleted=False).order_by(
+            "-created_at"
+        )
 
-        return Response({
-            'profile': serializer.data,
-            'posts': posts_serializer.data,
-            'is_own_profile': is_own_profile,
-            'is_following': is_following
-        })
+        is_following = Follow.objects.filter(
+            follower=request.user, following=user
+        ).exists()
+        mutual_following = (
+            is_following
+            and Follow.objects.filter(follower=user, following=request.user).exists()
+        )
 
+        if user.is_private and not (is_own_profile or mutual_following):
+            user_posts = (
+                []
+            ) 
+
+        posts_serializer = PostSerializer(
+            user_posts, many=True, context={"request": request}
+        )
+
+        return Response(
+            {
+                "profile": serializer.data,
+                "posts": posts_serializer.data,
+                "is_own_profile": is_own_profile,
+                "is_following": is_following,
+            }
+        )
 
 
 class UpdateUserView(APIView):
@@ -95,23 +101,6 @@ class UpdateUserView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# class EditProfileView(APIView):
-#     permission_classes = [IsAuthenticated]
-
-#     def patch(self, request, pk):
-#         user = User.objects.get(pk=pk)
-#         if user != request.user:
-#             return Response({'error': 'You do not have permission to edit this profile.'}, status=status.HTTP_403_FORBIDDEN)
-        
-#         serializer = UserSerializer(user, data=request.data, partial=True)
-#         if serializer.is_valid():
-#             if 'profile_picture' in request.FILES:
-#                 user.profile_picture = request.FILES['profile_picture']
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-
 
 class EditProfileView(APIView):
     permission_classes = [IsAuthenticated]
@@ -120,30 +109,35 @@ class EditProfileView(APIView):
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         if user != request.user:
-            return Response({'error': 'You do not have permission to edit this profile.'}, status=status.HTTP_403_FORBIDDEN)
+            return Response(
+                {"error": "You do not have permission to edit this profile."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
 
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
-            if 'profile_picture' in request.FILES:
-                user.profile_picture = request.FILES['profile_picture']
+            if "profile_picture" in request.FILES:
+                user.profile_picture = request.FILES["profile_picture"]
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+# --------------------------------------------------Post Like -----------------------------------------------------------------------------------------------------------
 class PostLikeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, pk):
         post = Posts.objects.get(pk=pk)
         user = request.user
-        print("userrrrrrrrrr",user)
-        print("the count of like",post.total_likes())
-        print("liked post",post.likes.filter(id=user.id).exists())
+        print("userrrrrrrrrr", user)
+        print("the count of like", post.total_likes())
+        print("liked post", post.likes.filter(id=user.id).exists())
         print()
         # liked = False
         if post.likes.filter(id=user.id).exists():
@@ -152,23 +146,26 @@ class PostLikeView(APIView):
             post.likes.add(user)
             print(user)
             # liked = True
-            
-        return Response({
-            'total_likes': post.total_likes(),
-            'is_liked': post.likes.filter(id=user.id).exists(),
-            
-            # 'is_liked': post.likes.filter(id=user.id)
-            # 'like':post.likes
-        }, status=status.HTTP_200_OK)
-        # return Response({'total_likes': post.total_likes(),'is_liked': liked}, status=status.HTTP_200_OK)
- 
+
+        return Response(
+            {
+                "total_likes": post.total_likes(),
+                "is_liked": post.likes.filter(id=user.id).exists(),
+               
+            },
+            status=status.HTTP_200_OK,
+        )
+        
+
+#---------------------------------------------post comment , update and delete-------------------------------------------------------------------------------------------------------
 class CommentListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, post_id):
-        comments = Comment.objects.filter(post_id=post_id).order_by('-created_at')
+        comments = Comment.objects.filter(post_id=post_id).order_by("-created_at")
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class CommentCreateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -177,14 +174,20 @@ class CommentCreateView(APIView):
         try:
             post = get_object_or_404(Posts, pk=post_id)
         except Posts.DoesNotExist:
-            return Response({"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
-        serializer = CommentSerializer(data=request.data, context={'request': request})
+        serializer = CommentSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             serializer.save(user=request.user, post=post)
-            comments = Comment.objects.filter(post=post).order_by('-created_at')
-            return Response(CommentSerializer(comments, many=True).data, status=status.HTTP_201_CREATED)
+            comments = Comment.objects.filter(post=post).order_by("-created_at")
+            return Response(
+                CommentSerializer(comments, many=True).data,
+                status=status.HTTP_201_CREATED,
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class CommentUpdateView(APIView):
     permission_classes = [IsAuthenticated]
@@ -197,6 +200,7 @@ class CommentUpdateView(APIView):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class CommentDeleteView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -204,9 +208,8 @@ class CommentDeleteView(APIView):
         comment = get_object_or_404(Comment, pk=comment_id, user=request.user)
         comment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
 
-
+# ----------------------------------------------user follow------------------------------------------------------------------------------------------------------------------------------------------
 class FollowUnfollowView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -214,24 +217,86 @@ class FollowUnfollowView(APIView):
         try:
             target_user = User.objects.get(id=user_id)
         except User.DoesNotExist:
-            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         if target_user == request.user:
-            return Response({"error": "You cannot follow/unfollow yourself"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "You cannot follow/unfollow yourself"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
-        follow_relationship, created = Follow.objects.get_or_create(following=request.user, follower=target_user)
+        follow_relationship, created = Follow.objects.get_or_create(
+            following=request.user, follower=target_user
+        )
 
         if not created:
             follow_relationship.delete()
             is_following = False
         else:
             is_following = True
-        print("is folowwwwww",is_following)
+
+        mutual_following = (
+            Follow.objects.filter(follower=request.user, following=target_user).exists()
+            and Follow.objects.filter(
+                follower=target_user, following=request.user
+            ).exists()
+        )
+
         follower_count = target_user.followers.count()
         following_count = target_user.following.count()
 
-        return Response({"is_following": is_following, "follower_count": follower_count,
-            "following_count": following_count})
+        return Response(
+            {
+                "is_following": is_following,
+                "follower_count": follower_count,
+                "following_count": following_count,
+                "mutual_following": mutual_following,
+            }
+        )
 
 
+# ---------------------user profile post view,update and delete---------------------------------------------------------------------------------------------------------------------------------------------
+class PostDetailView(APIView):
+    def get(self, request, post_id):
+        try:
+            post = Posts.objects.get(id=post_id)
+            comments = (
+                post.comments.all()
+            ) 
+            serialized_post = PostSerializer(post)
+            serialized_comments = CommentSerializer(comments, many=True)
+            data = serialized_post.data
+            data["comments"] = serialized_comments.data
+            return Response(data, status=status.HTTP_200_OK)
+        except Posts.DoesNotExist:
+            return Response(
+                {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
+
+class PostUpdateView(APIView):
+    def patch(self, request, post_id):
+        try:
+            post = Posts.objects.get(id=post_id)
+            post.body = request.data.get("body", post.body)
+            post.save()
+            serialized_post = PostSerializer(post)
+            return Response(serialized_post.data, status=status.HTTP_200_OK)
+        except Posts.DoesNotExist:
+            return Response(
+                {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+
+class PostDeleteView(APIView):
+    def delete(self, request, post_id):
+        try:
+            post = Posts.objects.get(id=post_id)
+            post.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        except Posts.DoesNotExist:
+            return Response(
+                {"error": "Post not found"}, status=status.HTTP_404_NOT_FOUND
+            )

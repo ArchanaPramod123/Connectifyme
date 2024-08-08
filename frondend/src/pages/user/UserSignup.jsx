@@ -9,6 +9,13 @@ import * as Yup from 'yup';
 const UserSignUp = () => {
   const navigate = useNavigate();
   const [formErrors, setFormErrors] = useState({});
+  const [values, setValues] = useState({
+    full_name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+    phone: '',
+  });
   const baseURL = 'http://127.0.0.1:8000/';
 
   const SignupSchema = Yup.object().shape({
@@ -34,13 +41,7 @@ const UserSignUp = () => {
     phone: Yup.string().nullable(),
   });
 
-  const [values, setValues] = useState({
-    full_name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    phone: '',
-  });
+
 
   const handleChange = (e) => {
     setValues({ ...values, [e.target.name]: e.target.value });

@@ -1,14 +1,11 @@
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './Authentication/authenticationSlice'
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./Authentication/authenticationSlice";
 
 export const store = configureStore({
-    reducer: {
-      auth: authReducer,
-    },
-  });
-  
-
-
+  reducer: {
+    auth: authReducer,
+  },
+});
 
 // import { configureStore } from '@reduxjs/toolkit';
 // import { persistStore, persistReducer } from 'redux-persist';
@@ -27,16 +24,12 @@ export const store = configureStore({
 //     auth: persistedReducer,
 //   },
 
-  
-
 //   // middleware: (getDefaultMiddleware) =>
 //   //   getDefaultMiddleware({
 //   //     serializableCheck: {
 //   //       ignoredActions: ['persist/PERSIST', 'persist/REHYDRATE'],
 //   //     },
 //   //   }),
-
-
 
 // });
 

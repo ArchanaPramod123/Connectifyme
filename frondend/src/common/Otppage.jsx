@@ -11,10 +11,11 @@ const Otppage = () => {
   const queryParams = new URLSearchParams(location.search);
   const [otpValue, setOtpValue] = useState('');
   const [resend, setResend] = useState(false);
+  const email = localStorage.getItem('email');
+  
   const navigate = useNavigate();
   const twoDigits = (num) => String(num).padStart(2, '0');
   const baseURL = 'http://127.0.0.1:8000/';
-  const email = localStorage.getItem('email');
   const [minute, setMinute] = useState(1);
   const [second, setSecond] = useState(1);
   const [loading, setLoading] = useState(false);

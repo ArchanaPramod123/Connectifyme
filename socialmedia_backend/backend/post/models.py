@@ -27,6 +27,7 @@ class Posts(models.Model):
     
     def total_reports(self):
         return self.reported_users.count()
+    
 class Comment(models.Model):
     post = models.ForeignKey(Posts,related_name='comments',on_delete=models.CASCADE)
     user=models.ForeignKey(User,on_delete=models.CASCADE)

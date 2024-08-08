@@ -1,8 +1,7 @@
-import React, {useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Navigate } from 'react-router-dom';
-import isAuthUser from '../utils/isAuthuser'
-
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { Navigate } from "react-router-dom";
+import isAuthUser from "../utils/isAuthuser";
 
 const PrivateRoute = ({ children }) => {
   const dispatch = useDispatch();
