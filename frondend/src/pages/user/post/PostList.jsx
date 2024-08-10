@@ -3,13 +3,14 @@ import { FaHeart, FaRegHeart, FaRegComment } from "react-icons/fa";
 import axios from "axios";
 import CommentModal from "./CommentModel";
 import { Link } from "react-router-dom";
-
+import { useSelector } from 'react-redux';
 const Post = ({ post }) => {
   const baseURL = "http://127.0.0.1:8000";
   const [isLiked, setIsLiked] = useState(post.is_liked);
   const [comments, setComments] = useState(post.comments || []);
   const [totalLikes, setTotalLikes] = useState(post.total_likes);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+  // const loggedInUserId = useSelector((state) => state.auth.user.id); 
 
   const getToken = () => {
     return localStorage.getItem("access");
@@ -84,6 +85,7 @@ const Post = ({ post }) => {
         setComments={setComments}
         isOpen={isCommentModalOpen}
         onClose={() => setIsCommentModalOpen(false)}
+       
       />
     </div>
   );

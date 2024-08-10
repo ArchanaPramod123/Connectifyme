@@ -21,6 +21,7 @@ class PostSerializer(serializers.ModelSerializer):
             "total_likes",
             "created_time",
             "is_liked",
+           
         ]
 
     def to_representation(self, instance):

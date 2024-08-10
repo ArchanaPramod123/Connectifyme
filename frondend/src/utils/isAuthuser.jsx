@@ -15,6 +15,7 @@ const updateUserToken = async (dispatch) => {
       const decoded = jwtDecode(res.data.access);
       dispatch(
         set_Authentication({
+          user_id:decoded.user_id,
           name: decoded.name,
           email: decoded.email,
           isAuthenticated: true,
@@ -44,6 +45,7 @@ const isAuthUser = async (dispatch) => {
   if (decoded.exp > currentTime) {
     dispatch(
       set_Authentication({
+        user_id: decoded.user_id,
         name: decoded.name,
         email: decoded.email,
         isAuthenticated: true,

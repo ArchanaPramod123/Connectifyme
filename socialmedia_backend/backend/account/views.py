@@ -125,6 +125,7 @@ class LoginView(APIView):
             )
 
         refresh = RefreshToken.for_user(user)
+        refresh["user_id"] = user.id
         refresh["name"] = user.full_name
         refresh["email"] = user.email
         refresh["isAuthenticated"] = user.is_authenticated
@@ -134,8 +135,10 @@ class LoginView(APIView):
 
         profile_complete = bool(user.username and user.profile_picture and user.bio)
         print("profilllleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", profile_complete)
+        print("user idddddddddddddddddddddddddddddddddddddddddd",user.id)
 
         content = {
+            "user_id": user.id, 
             "email": user.email,
             "name": user.full_name,
             "access_token": access_token,

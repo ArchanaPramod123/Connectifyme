@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Toaster, toast } from "sonner";
 import { FaHeart, FaRegHeart, FaEllipsisH } from "react-icons/fa"; 
+import { useSelector } from 'react-redux';
 
 const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
   const [post, setPost] = useState(null);
@@ -10,6 +11,10 @@ const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
   const [showMenu, setShowMenu] = useState(false); 
   const [isEditing, setIsEditing] = useState(false);
   const [editedBody, setEditedBody] = useState(""); 
+  const userId = useSelector((state) => state.auth.user_id);
+  
+  
+  
 
   useEffect(() => {
     const fetchPostDetails = async () => {
@@ -114,10 +119,12 @@ const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
   if (!post) {
     return <div>Loading...</div>;
   }
+  console.log("in the post detailed userid,", userId);
+  console.log("in the post detailed post id user id", post?.user?.id);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white rounded-lg p-8 w-full max-w-3xl relative shadow-lg">
+      <div className="bg-white rounded-lg p-8 w-full max-w-3xl relative shadow-lg overflow-auto max-h-screen">
         <button
           onClick={() => onClose()}
           className="absolute top-4 right-4 text-xl font-bold text-gray-600 hover:text-gray-800"
@@ -154,6 +161,8 @@ const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
             <button onClick={handleLikeToggle} className="text-3xl">
               {liked ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
             </button>
+            {post.user.id === userId && (
+               <>
             <button onClick={() => setShowMenu(!showMenu)} className="text-xl">
               <FaEllipsisH />
             </button>
@@ -177,6 +186,10 @@ const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
                 </button>
               </div>
             )}
+            </>
+            )}
+            
+          
           </div>
           <div className="w-full mt-4">
             <span className="text-lg">{post.total_likes} likes</span>

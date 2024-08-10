@@ -4,6 +4,7 @@ import Navbar from "../usercommon/Navbar";
 import { useParams, useNavigate } from "react-router-dom";
 import EditUserProfile from "../profile/EditUserProfile";
 import PostDetailPage from "./PostDetailPage";
+import { useSelector } from 'react-redux';
 
 const UserProfilePage = () => {
   const { userId } = useParams();
@@ -15,6 +16,10 @@ const UserProfilePage = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [isPostDetailOpen, setIsPostDetailOpen] = useState(false);
+
+  const [showEditProfileModal, setShowEditProfileModal] = useState(false);
+
+  const userprofile_id = useSelector((state) => state.auth.user_id);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -73,6 +78,16 @@ const UserProfilePage = () => {
     setSelectedPostId(null);
   };
 
+  const openEditProfileModal = () => {
+    setShowEditProfileModal(true);
+  };
+
+  const handleProfileUpdate = (updatedProfile) => {
+    setProfile(updatedProfile);
+    setShowEditProfileModal(false);
+  };
+  
+
   if (error) {
     return <div>{error}</div>;
   }
@@ -80,6 +95,9 @@ const UserProfilePage = () => {
   if (!profile) {
     return <div>Loading...</div>;
   }
+
+  console.log("the edit page go the userid is the profile page is",userprofile_id);
+  
 
   return (
     <div className="flex bg-[#faf7f4] min-h-screen">
@@ -101,7 +119,9 @@ const UserProfilePage = () => {
               {isOwnProfile ? (
                 <button
                   className="bg-blue-500 text-white border-none px-4 py-2 rounded-md cursor-pointer transition-bg duration-300 hover:bg-blue-700"
-                  onClick={() => navigate(`/user/edit-profile/${userId}`)}
+                  // onClick={() => navigate(`/user/edit-profile/${userprofile_id}`)}
+                  onClick={openEditProfileModal}
+                  
                 >
                   Edit Profile
                 </button>
@@ -166,6 +186,13 @@ const UserProfilePage = () => {
           </div>
         )}
       </div>
+      {showEditProfileModal && (
+        <EditUserProfile
+          profile={profile}
+          onClose={() => setShowEditProfileModal(false)}
+          onProfileUpdate={handleProfileUpdate}
+        />
+      )}
 
       <PostDetailPage
         postID={selectedPostId}

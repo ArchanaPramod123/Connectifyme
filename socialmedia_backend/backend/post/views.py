@@ -102,10 +102,41 @@ class UpdateUserView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# class EditProfileView(APIView):
+#     permission_classes = [IsAuthenticated]
+
+#     def patch(self, request, user_id):
+#         try:
+#             user = User.objects.get(id=user_id)
+#             print("the edit profile way od user_id",user)
+#         except User.DoesNotExist:
+#             return Response(
+#                 {"error": "User not found"}, status=status.HTTP_404_NOT_FOUND
+#             )
+
+#         if user != request.user:
+#             return Response(
+#                 {"error": "You do not have permission to edit this profile."},
+#                 status=status.HTTP_403_FORBIDDEN,
+#             )
+
+#         serializer = UserSerializer(user, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             if "profile_picture" in request.FILES:
+#                 user.profile_picture = request.FILES["profile_picture"]
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_200_OK)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
 class EditProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     def patch(self, request, user_id):
+        print("Received Data: ", request.data)
+        print("Received Files: ", request.FILES)
         try:
             user = User.objects.get(id=user_id)
         except User.DoesNotExist:
@@ -122,10 +153,17 @@ class EditProfileView(APIView):
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             if "profile_picture" in request.FILES:
-                user.profile_picture = request.FILES["profile_picture"]
+                serializer.validated_data['profile_picture'] = request.FILES['profile_picture']
             serializer.save()
             return Response(serializer.data, status=status.HTTP_200_OK)
+            # if "profile_picture" in request.FILES:
+            #     user.profile_picture = request.FILES["profile_picture"]
+            # serializer.save()
+            # return Response(serializer.data, status=status.HTTP_200_OK)
+        print("Serializer Errors: ", serializer.errors)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 
 # --------------------------------------------------Post Like -----------------------------------------------------------------------------------------------------------
@@ -209,6 +247,11 @@ class CommentDeleteView(APIView):
         comment.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+
+
+
+
 # ----------------------------------------------user follow------------------------------------------------------------------------------------------------------------------------------------------
 class FollowUnfollowView(APIView):
     permission_classes = [IsAuthenticated]
@@ -258,6 +301,7 @@ class FollowUnfollowView(APIView):
 
 
 # ---------------------user profile post view,update and delete---------------------------------------------------------------------------------------------------------------------------------------------
+
 class PostDetailView(APIView):
     def get(self, request, post_id):
         try:

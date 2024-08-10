@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { FaTrash, FaEdit, FaEllipsisV } from "react-icons/fa";
 import axios from "axios";
 import styled from "styled-components";
+import { useSelector } from 'react-redux';
 
 const ModalBackground = styled.div`
   position: fixed;
@@ -152,6 +153,12 @@ const CommentModal = ({ postId, isOpen, onClose }) => {
   const [editingComment, setEditingComment] = useState(null);
   const [editCommentText, setEditCommentText] = useState("");
 
+
+  // const user_id = useSelector((state) => state.authentication_user.user_id);
+  const userId = useSelector((state) => state.auth.user_id);
+  console.log("the useselector userid isssssssssss ",userId);
+  
+
   const getToken = () => {
     return localStorage.getItem("access");
   };
@@ -165,7 +172,7 @@ const CommentModal = ({ postId, isOpen, onClose }) => {
           },
         })
         .then((response) => {
-          console.log(response.data);
+          console.log(response.data); // Check if profile_picture URL is present and correct
           setComments(response.data);
         })
         .catch((error) => {
@@ -175,6 +182,9 @@ const CommentModal = ({ postId, isOpen, onClose }) => {
   }, [isOpen, postId]);
 
   const handleCommentSubmit = async (e) => {
+    console.log("comment.user:", comment.user);
+    console.log("userId:", userId);
+
     e.preventDefault();
     try {
       const response = await axios.post(
@@ -293,6 +303,7 @@ const CommentModal = ({ postId, isOpen, onClose }) => {
                     </span>
                   </CommentText>
                 </CommentContent>
+                {comment.user === userId  && (
                 <MenuButton
                   onClick={() =>
                     setShowMenu(comment.id === showMenu ? null : comment.id)
@@ -312,6 +323,7 @@ const CommentModal = ({ postId, isOpen, onClose }) => {
                     </MenuItem>
                   </Menu>
                 </MenuButton>
+                )}
               </CommentContainer>
             ))}
           </CommentSection>

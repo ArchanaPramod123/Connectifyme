@@ -37,21 +37,30 @@ const UserLogin = () => {
 
     try {
       const response = await axios.post(baseURL + 'api/login/', formData);
+      console.log("i wnat to check the user_id is store",formData);
+      
 
       if (response.status === 200) {
         const decodedToken = jwtDecode(response.data.access_token);
 
         localStorage.setItem('access', response.data.access_token);
         localStorage.setItem('refresh', response.data.refresh_token);
+        console.log("user_iddddddddddddddddddddddddddddd",response.data.user_id);
+        console.log("user_nameeeeeeeeeeeeeeeeeeeeeeeeeee",response.data.name);
+        
 
         dispatch(
           set_Authentication({
+            id:response.data.user_id,
             name: response.data.name,
             email: response.data.email,
             isAuthenticated: true,
             isAdmin: response.data.isAdmin,
           })
+          
+          
         );
+       
 
         dispatch(
           set_user_basic_details({
@@ -66,6 +75,7 @@ const UserLogin = () => {
           toast.success('Successfuly login');
 
           navigate('/user/home');
+          console.log("the userid thst go to the redux id",user_id);
         } else {
           // console.log("checkkkkkkkkkkkkkkkkkkkkkk");
           toast.info("Complete your account updation")
