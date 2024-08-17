@@ -18,6 +18,7 @@ const updateUserToken = async (dispatch) => {
           user_id:decoded.user_id,
           name: decoded.name,
           email: decoded.email,
+          // profile_picture:decoded.profile_picture,
           isAuthenticated: true,
           isAdmin: decoded.isAdmin,
         })
@@ -48,6 +49,7 @@ const isAuthUser = async (dispatch) => {
         user_id: decoded.user_id,
         name: decoded.name,
         email: decoded.email,
+        // profile_picture: decoded.profile_picture,
         isAuthenticated: true,
         isAdmin: decoded.isAdmin,
       })

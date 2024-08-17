@@ -117,6 +117,7 @@ class LoginView(APIView):
             )
 
         user = authenticate(username=email, password=password)
+        print("the authentication login user",user)
 
         if user is None:
             return Response(
@@ -127,6 +128,7 @@ class LoginView(APIView):
         refresh = RefreshToken.for_user(user)
         refresh["user_id"] = user.id
         refresh["name"] = user.full_name
+        # refresh["profile_picture"] = user.profile_picture.url
         refresh["email"] = user.email
         refresh["isAuthenticated"] = user.is_authenticated
         refresh["isAdmin"] = user.is_superuser
@@ -136,6 +138,7 @@ class LoginView(APIView):
         profile_complete = bool(user.username and user.profile_picture and user.bio)
         print("profilllleeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee", profile_complete)
         print("user idddddddddddddddddddddddddddddddddddddddddd",user.id)
+        # print("user profile pictureeeeeeeeeeeeeeeeeeeeeeeeee",user.profile_picture.url)
 
         content = {
             "user_id": user.id, 
@@ -145,6 +148,9 @@ class LoginView(APIView):
             "refresh_token": refresh_token,
             "isAdmin": user.is_superuser,
             "profile_complete": profile_complete,
+            # "profile_picture": user.profile_picture.url if user.profile_picture.url else None,  # Use .url to send the path
+
+           
         }
         return Response(content, status=status.HTTP_200_OK)
 
@@ -200,10 +206,21 @@ class UserListView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        users = User.objects.filter(is_active=True, is_superuser=False)
+        users = User.objects.filter(is_superuser=False)
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class UserBlockUnblockView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            user.is_active = request.data.get('is_active', user.is_active)
+            user.save()
+            return Response({"status": "success", "message": "User status updated successfully."}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"status": "error", "message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
 
 # class UserProfileView(APIView):

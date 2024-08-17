@@ -124,3 +124,5 @@ class UserSerializerProfile(serializers.ModelSerializer):
             "total_posts",
             "is_following",
         ]
+
+

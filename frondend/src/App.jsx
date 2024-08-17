@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import UserWrapper from "./components/user/UserWrapper";
 import AdminWrapper from "./components/admin/AdminWrapper";
-
+import AuthUser from "./Redux/AuthUser";
 function App() {
   // const [count, setCount] = useState(0)
 
@@ -14,6 +14,7 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
+          {/* <Route path="/" element={<AuthUser><LandingPage /></AuthUser>}></Route> */}
           <Route path="/" element={<LandingPage />}></Route>
           <Route path="user/*" element={<UserWrapper></UserWrapper>}></Route>
           <Route path="admin/*" element={<AdminWrapper />}></Route>

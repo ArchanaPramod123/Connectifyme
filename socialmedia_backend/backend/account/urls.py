@@ -19,6 +19,7 @@ urlpatterns = [
 
     path('adminlogin/',AdminLoginView.as_view(),name="adminlogin"),
     path('user-list/', UserListView.as_view(), name='user_list'),
+    path('user-block-unblock/<int:user_id>/', UserBlockUnblockView.as_view(), name='user-block-unblock'),
 
 
 

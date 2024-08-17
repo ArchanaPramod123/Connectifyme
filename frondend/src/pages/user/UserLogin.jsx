@@ -47,6 +47,7 @@ const UserLogin = () => {
         localStorage.setItem('refresh', response.data.refresh_token);
         console.log("user_iddddddddddddddddddddddddddddd",response.data.user_id);
         console.log("user_nameeeeeeeeeeeeeeeeeeeeeeeeeee",response.data.name);
+        // console.log("user_profileeeeeeeeeeeeepiccccccccc",response.data.profile_picture);
         
 
         dispatch(
@@ -54,6 +55,7 @@ const UserLogin = () => {
             id:response.data.user_id,
             name: response.data.name,
             email: response.data.email,
+            // profile_picture: response.data.profile_picture,
             isAuthenticated: true,
             isAdmin: response.data.isAdmin,
           })
@@ -85,7 +87,7 @@ const UserLogin = () => {
     } catch (error) {
       setFormError('Invalid email or password');
       // console.log('error', error);
-      toast.error('invalid password or email')
+      // toast.error('invalid password or email')
     }
   };
 

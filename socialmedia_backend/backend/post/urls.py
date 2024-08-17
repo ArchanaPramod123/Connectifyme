@@ -13,6 +13,10 @@ urlpatterns = [
     path('edit-profile/<int:user_id>/', EditProfileView.as_view(), name='edit-profile'),
     path('profile/<int:user_id>/', UserProfileView.as_view(), name='user-profile-detail'),
     path('like-post/<int:pk>/', PostLikeView.as_view(), name='like-post'),
+
+    path('suggesions/', SuggestionView.as_view(), name='suggestion'),
+
+
     path('comments/<int:post_id>/', CommentListView.as_view(), name='comment-list'),
     path('comment-post/<int:post_id>/', CommentCreateView.as_view(), name='comment-create'),
     path('comment-update/<int:comment_id>/', CommentUpdateView.as_view(), name='comment-update'),
@@ -23,6 +27,8 @@ urlpatterns = [
     path('update-post/<int:post_id>/', PostUpdateView.as_view(), name='update-post'),
     path('delete-post/<int:post_id>/', PostDeleteView.as_view(), name='delete-post'),
    
+   path('search-users/', SearchUserView.as_view(), name='search-users'),
+   path('explore/', ExploreView.as_view(), name='explore'),
    
 ]
 

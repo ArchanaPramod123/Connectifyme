@@ -5,6 +5,7 @@ export const authenticationSlice = createSlice({
     user_id: null,
     name: null,
     email: null,
+    // profile_picture: null,
     isAuthenticated: false,
     isAdmin: false,
     usertype: null,
@@ -17,6 +18,9 @@ export const authenticationSlice = createSlice({
       state.name = action.payload.name;
       console.log("thes staeuseriddddddddddddd",state.name);
       state.email = action.payload.email;
+      state.profile_picture = action.payload.profile_picture;
+      console.log("the profile pictuer of the profile",state.profile_picture);
+      
       state.isAuthenticated = action.payload.isAuthenticated;
       state.isAdmin = action.payload.isAdmin;
     },

@@ -1,11 +1,12 @@
-
 import {jwtDecode} from 'jwt-decode';
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { FaHome, FaSearch, FaBell, FaEnvelope, FaUserCircle, FaSignOutAlt, FaPlus } from 'react-icons/fa'; 
+import { FaHome, FaSearch, FaBell, FaEnvelope, FaUserCircle, FaSignOutAlt, FaPlus,FaCompass } from 'react-icons/fa'; 
 import UserLogout from '../UserLogout';
 import CreatePostPage from '../post/CreatePost'; 
+import SearchModal from '../SearchModel';
+import { useSelector } from 'react-redux';
 
 const SidebarContainer = styled.div`
   width: 250px;
@@ -99,6 +100,14 @@ const SidebarFooter = styled.div`
 
 const NavBar = ({ fetchPosts }) => {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
+  const {profile_picture } = useSelector((state) => state.auth);
+  const backendUrl='http://127.0.0.1:8000';
+
+
+  const openSearchModal = () => setIsSearchModalOpen(true);
+  const closeSearchModal = () => setIsSearchModalOpen(false);
+
 
   const openCreatePostModal = () => {
     setIsCreatePostModalOpen(true);
@@ -121,11 +130,9 @@ const NavBar = ({ fetchPosts }) => {
             <span>Home</span>
           </Link>
         </NavIcon>
-        <NavIcon>
-          <Link to="/user/search">
-            <FaSearch />
-            <span>Search</span>
-          </Link>
+        <NavIcon onClick={openSearchModal}>
+          <FaSearch />
+          <span>Search</span>
         </NavIcon>
         <NavIcon>
           <Link to="/user/notifications">
@@ -138,17 +145,46 @@ const NavBar = ({ fetchPosts }) => {
             <FaEnvelope />
             <span>Messages</span>
           </Link>
+         
+
+        </NavIcon>
+        <NavIcon>
+          <Link to="/user/explore"> {/* Update link */}
+            <FaCompass />
+            <span>Explore</span>
+          </Link>
         </NavIcon>
         <NavIcon onClick={openCreatePostModal}>
           <FaPlus />
           <span>Create Post</span>
         </NavIcon>
-        <NavIcon>
+        {/* <NavIcon>
           <Link to="/user/profile">
             <FaUserCircle />
             <span>Profile</span>
           </Link>
-        </NavIcon>
+          </NavIcon> */}
+
+
+<NavIcon>
+  <Link to="/user/profile">
+    {profile_picture ? (
+      <img
+        src={`${backendUrl}${profile_picture}`}
+        alt="Profile"
+        style={{
+          width: '30px',
+          height: '30px',
+          borderRadius: '50%',
+          marginRight: '10px',
+        }}
+      />
+    ) : (
+      <FaUserCircle />
+    )}
+    <span>Profile</span>
+  </Link>
+</NavIcon>
         <NavIcon>
         <FaSignOutAlt />
           <UserLogout /> {/* Use UserLogout as a component */}
@@ -164,6 +200,10 @@ const NavBar = ({ fetchPosts }) => {
         isOpen={isCreatePostModalOpen}
         onRequestClose={closeCreatePostModal}
         fetchPosts={fetchPosts}
+      />
+      <SearchModal
+        isOpen={isSearchModalOpen}
+        onClose={closeSearchModal}
       />
     </SidebarContainer>
   );

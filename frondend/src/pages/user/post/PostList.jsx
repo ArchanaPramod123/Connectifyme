@@ -10,7 +10,6 @@ const Post = ({ post }) => {
   const [comments, setComments] = useState(post.comments || []);
   const [totalLikes, setTotalLikes] = useState(post.total_likes);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-  // const loggedInUserId = useSelector((state) => state.auth.user.id); 
 
   const getToken = () => {
     return localStorage.getItem("access");
@@ -45,7 +44,7 @@ const Post = ({ post }) => {
   return (
     // <div className="border border-gray-300 my-5 p-5 rounded-lg bg-white">
     <div>
-      <div className="flex items-center">
+      <div className="flex items-center w-20">
         {post.user.profile_picture && (
           <img
             src={`${baseURL}${post.user.profile_picture}`}
@@ -61,8 +60,8 @@ const Post = ({ post }) => {
           {post.user.full_name}
         </Link>
       </div>
-      {post.img && <img src={post.img} alt="Post" className="w-full mt-3" />}
-      <p className="mt-3">{post.body}</p>
+      {post.img && <img src={post.img} alt="Post" className="w-full mt-3 rounded-lg shadow-md" />}
+      
       <div className="flex items-center mt-3">
         <button onClick={handleLikeToggle} className="mr-3 focus:outline-none">
           {isLiked ? (
@@ -78,7 +77,8 @@ const Post = ({ post }) => {
           <FaRegComment className="text-2xl" />
         </button>
       </div>
-      <p className="mt-3">Likes: {totalLikes}</p>
+      <p className="mt-3 font-medium">Likes: {totalLikes}</p>
+      <p className="mt-3 font-medium">{post.body}</p>
       <CommentModal
         postId={post.id}
         comments={comments}
