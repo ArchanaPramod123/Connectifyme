@@ -29,10 +29,10 @@ urlpatterns = [
    
    path('search-users/', SearchUserView.as_view(), name='search-users'),
    path('explore/', ExploreView.as_view(), name='explore'),
+
+   path('report-post/<int:post_id>/', ReportPostView.as_view(), name='report-post'),
+
+   path('notifications/',NotificationsView.as_view(),name='notifications'),
+   path('notifications-seen/<int:pk>/',NotificationsSeenView.as_view(),name='notifications-seen'),
    
 ]
-
-
-
-
- # path('profile/<int:user_id>/', UserProfileView.as_view(), name='user-profile-detail'),

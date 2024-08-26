@@ -33,3 +33,11 @@ def resend_otp_via_mail(email):
         print(otp)
     except Exception as e:
         print(f'Error sending email: {e}')
+def forgot_password_mail(email, user_id):
+    subject = 'Welcome back... your reset password link'
+    link = f'http://localhost:5173/user/reset_password/{user_id}'
+    email_from = settings.EMAIL_HOST
+    try:
+        send_mail(subject, link, email_from, [email])
+    except Exception as e:
+        print("Error:", e)

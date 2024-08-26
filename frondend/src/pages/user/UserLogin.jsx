@@ -124,6 +124,10 @@ const UserLogin = () => {
             />
           </div>
           {formError && <div className="flex justify-start mb-5 pl-3 text-red-600"><p>{formError}</p></div>}
+          <p className="mt-4">
+  Forgot your password? <Link to="/user/forgot-password" className="text-blue-400 hover:underline">Reset Password</Link>
+</p>
+
           <button
             type="submit"
             className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-700 transition-all duration-300"

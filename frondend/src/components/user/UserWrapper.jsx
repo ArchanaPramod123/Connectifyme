@@ -15,16 +15,24 @@ import Suggestion from '../../pages/user/UserSuggestion';
 import SearchModal from '../../pages/user/SearchModel'; 
 import Messages from '../../pages/user/chat/Message';
 import Explore from '../../pages/user/Explore';
+import ForgetPassword from '../../common/ForgetPassword';
+import ResetPassword from '../../common/ResetPassword';
+import ReportModal from '../../pages/user/post/UserPostReport';
+import OneToOneVideoCall from '../../pages/user/chat/OneToOneVideoCall';
 
 const UserWrapper = () => {
   return (
     <div>
       <Routes>
-        {/* <Route path="/" element={<AuthUser><UserLogin /></AuthUser>} />
-        <Route path="/signup" element={<AuthUser><UserSignUp /></AuthUser>} /> */}
-        <Route path="/" element={<UserLogin />} />
-        <Route path="/signup" element={<UserSignUp />}/>
+        <Route path="/" element={<AuthUser><UserLogin /></AuthUser>} />
+        <Route path="/signup" element={<AuthUser><UserSignUp /></AuthUser>} />
+        {/* <Route path="/" element={<UserLogin />} />
+        <Route path="/signup" element={<UserSignUp />}/> */}
         <Route path="/otp-verify" element={<VerifyOTP />} />
+
+        <Route path='/forgot-password' element={<ForgetPassword></ForgetPassword>}/>
+        <Route path='/reset_password/:id' element={<ResetPassword></ResetPassword>}/>
+
         <Route path="/home" element={<PrivateRoute><UserHome /></PrivateRoute>} />
         <Route path="/create-post" element={<PrivateRoute><CreatePostPage /></PrivateRoute>} />
         <Route path="/profile" element={<PrivateRoute><UserProfilePage /></PrivateRoute>} />
@@ -41,6 +49,13 @@ const UserWrapper = () => {
 
         <Route path='/messages' element={<PrivateRoute><Messages/></PrivateRoute>}/>
         <Route path='/explore' element={<PrivateRoute><Explore/></PrivateRoute>}/>
+
+
+        <Route path='/reportpost' element={<PrivateRoute><ReportModal/></PrivateRoute>}/>
+        <Route path="/video-call/:roomId" element={<PrivateRoute><OneToOneVideoCall /></PrivateRoute>} />
+
+
+
       </Routes>
     </div>
   );

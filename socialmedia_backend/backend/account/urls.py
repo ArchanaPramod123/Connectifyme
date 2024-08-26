@@ -15,11 +15,17 @@ urlpatterns = [
     # path('profile/', UserProfileView.as_view(), name='user-profile'),
     path('verify-otp/', OtpVerificationView.as_view(), name='verify_otp'),
     path('resend-otp/', ResendOtpView.as_view(), name='resend_otp'),
+    path('forgot_pass/', ForgotPassView.as_view(), name='forgot_pass'),
+    path('reset_password/<int:id>/',ResetPassword.as_view(),name="reset_password"),
     # path('create-profile/', UserProfileView.as_view(), name='create_profile'),
 
     path('adminlogin/',AdminLoginView.as_view(),name="adminlogin"),
     path('user-list/', UserListView.as_view(), name='user_list'),
     path('user-block-unblock/<int:user_id>/', UserBlockUnblockView.as_view(), name='user-block-unblock'),
+
+    # path('report-post/<int:post_id>/', ReportPostView.as_view(), name='report-post'),
+    path('admin/reports/', AdminReportListView.as_view(), name='report-list'),
+    path('admin/reports/<int:report_id>/', AdminReportListView.as_view(), name='admin-report-action'),
 
 
 

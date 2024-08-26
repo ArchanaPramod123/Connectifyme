@@ -335,7 +335,7 @@ const UserProfilePage = () => {
             </div>
             <div className="w-full flex flex-col pl-[16.5%] pt-8 pb-8">
                 <div className="flex flex-col items-center lg:flex-row lg:items-start lg:px-20 lg:py-8 lg:gap-8">
-                    <div className="flex justify-center items-center relative mb-4 lg:mb-0 lg:w-1/3">
+                    <div className="flex justify-center items-center  mb-4 lg:mb-0 lg:w-1/3">
                         <img
                             className="w-40 h-40 lg:w-48 lg:h-48 object-cover rounded-full cursor-pointer transition-opacity duration-300 hover:opacity-70"
                             src={`${profile.profile_picture}`}

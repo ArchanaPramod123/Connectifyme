@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { BsFillBellFill, BsFillEnvelopeFill, BsPersonCircle, BsSearch, BsJustify } from 'react-icons/bs';
 import { BsPeopleFill, BsListCheck, BsMenuButtonWideFill } from 'react-icons/bs';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import AdminNavBar from './NavBar';
-import { useSelector } from 'react-redux';
+import axios from 'axios';
 
 const AdminDashboard = () => {
     const [totalUsers, setTotalUsers] = useState([]);
@@ -11,17 +10,64 @@ const AdminDashboard = () => {
     const [totalReportedPosts, setTotalReportedPosts] = useState([]);
     const [chartData, setChartData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const BASE_URL='http://127.0.0.1:8000'
+
+    const fetchUserList = async () => {
+        try {
+            const token = localStorage.getItem('access'); 
+            const response = await axios.get(`${BASE_URL}/api/user-list/`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching user list:", error);
+            return [];
+        }
+    };
+    
+    const fetchPostsList = async () => {
+        try {
+            const token = localStorage.getItem('access'); 
+            const response = await axios.get(`${BASE_URL}/post/list-posts/`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching posts list:", error);
+            return [];
+        }
+    };
+    
+    const fetchReportedPostsList = async () => {
+        try {
+            const token = localStorage.getItem('access');
+            const response = await axios.get(`${BASE_URL}/api/admin/reports/`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching reported posts list:", error);
+            return [];
+        }
+    };
+    
 
     useEffect(() => {
         const fetchDetails = async () => {
             try {
-                const users = await userListApi();
+                const users = await fetchUserList();
                 setTotalUsers(users);
 
-                const posts = await postsListApi();
+                const posts = await fetchPostsList();
                 setTotalPosts(posts);
 
-                const reportedPosts = await reportedPostsListApi();
+                const reportedPosts = await fetchReportedPostsList();
                 setTotalReportedPosts(reportedPosts);
 
                 setChartData([
@@ -32,7 +78,7 @@ const AdminDashboard = () => {
 
                 setIsLoading(false);
             } catch (error) {
-                console.error(error);
+                console.error("Error in fetching details:", error);
                 setIsLoading(false);
             }
         };
@@ -41,11 +87,12 @@ const AdminDashboard = () => {
     }, []);
 
     return (
+        <div className="p-0 w-auto">
         <div className="bg-gray-900 text-gray-200 min-h-screen">
-            <div className="grid grid-cols-1 md:grid-cols-2 h-full">
-                {/* <AdminNavBar /> */}
+            <div className="grid grid-cols-1 h-full">
+               
                 <div className="md:col-span-3">
-                    <header className="flex justify-between items-center p-4 bg-gray-800 shadow-md">
+                    <header className="flex justify-between items-center  bg-gray-800 shadow-md">
                         <button className="md:hidden text-gray-400">
                             <BsJustify size={24} />
                         </button>
@@ -63,24 +110,24 @@ const AdminDashboard = () => {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div className="bg-blue-600 p-4 rounded-md shadow-md flex flex-col justify-between">
                                 <div className="flex justify-between items-center">
-                                    <h3>POSTS</h3>
+                                    <h3 className="text-white">POSTS</h3>
                                     <BsListCheck size={30} className="text-white" />
                                 </div>
-                                <h1 className="text-2xl font-bold mt-4">{totalPosts?.length || 0}</h1>
+                                <h1 className="text-2xl font-bold mt-4 text-white">{totalPosts?.length || 0}</h1>
                             </div>
                             <div className="bg-orange-500 p-4 rounded-md shadow-md flex flex-col justify-between">
                                 <div className="flex justify-between items-center">
-                                    <h3>USERS</h3>
+                                    <h3 className="text-white">USERS</h3>
                                     <BsPeopleFill size={30} className="text-white" />
                                 </div>
-                                <h1 className="text-2xl font-bold mt-4">{totalUsers?.length || 0}</h1>
+                                <h1 className="text-2xl font-bold mt-4 text-white">{totalUsers?.length || 0}</h1>
                             </div>
                             <div className="bg-red-600 p-4 rounded-md shadow-md flex flex-col justify-between">
                                 <div className="flex justify-between items-center">
-                                    <h3>REPORTS</h3>
+                                    <h3 className="text-white">REPORTS</h3>
                                     <BsMenuButtonWideFill size={30} className="text-white" />
                                 </div>
-                                <h1 className="text-2xl font-bold mt-4">{totalReportedPosts?.length || 0}</h1>
+                                <h1 className="text-2xl font-bold mt-4 text-white">{totalReportedPosts?.length || 0}</h1>
                             </div>
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
@@ -128,6 +175,7 @@ const AdminDashboard = () => {
                     </main>
                 </div>
             </div>
+        </div>
         </div>
     );
 };

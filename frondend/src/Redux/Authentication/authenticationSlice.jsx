@@ -8,7 +8,7 @@ export const authenticationSlice = createSlice({
     // profile_picture: null,
     isAuthenticated: false,
     isAdmin: false,
-    usertype: null,
+    // usertype: null,
   },
   reducers: {
     set_Authentication: (state, action) => {
@@ -18,8 +18,8 @@ export const authenticationSlice = createSlice({
       state.name = action.payload.name;
       console.log("thes staeuseriddddddddddddd",state.name);
       state.email = action.payload.email;
-      state.profile_picture = action.payload.profile_picture;
-      console.log("the profile pictuer of the profile",state.profile_picture);
+      // state.profile_picture = action.payload.profile_picture;
+      // console.log("the profile pictuer of the profile",state.profile_picture);
       
       state.isAuthenticated = action.payload.isAuthenticated;
       state.isAdmin = action.payload.isAdmin;

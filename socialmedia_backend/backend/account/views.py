@@ -3,11 +3,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, OtpVerificationSerializer
 from .models import User
-from .emails import send_otp_via_mail, resend_otp_via_mail
+from .emails import send_otp_via_mail, resend_otp_via_mail,forgot_password_mail
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
+from post.models import PostReport,Posts
+from post.serializer import ReportSerializer
 
 
 class UserRegisterView(APIView):
@@ -148,11 +150,59 @@ class LoginView(APIView):
             "refresh_token": refresh_token,
             "isAdmin": user.is_superuser,
             "profile_complete": profile_complete,
-            # "profile_picture": user.profile_picture.url if user.profile_picture.url else None,  # Use .url to send the path
-
-           
         }
         return Response(content, status=status.HTTP_200_OK)
+    
+
+
+class ForgotPassView(APIView):
+    permission_classes = []
+
+    def post(self, request):
+        email = request.data.get('email')
+        try:
+            if not User.objects.filter(email=email).exists():
+                return Response({"message": "Invalid email address"}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+            
+            if not User.objects.filter(email=email, is_active=True).exists():
+                return Response({"message": "You are blocked by admin"}, status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+            
+            user = User.objects.get(email=email)
+            print("the user id is",user.pk)
+            forgot_password_mail(email, user.pk)
+
+            response_data = {
+                'message': 'Password reset link sent. Please check your email.',
+                'email': email  
+            }
+            return Response(response_data, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"message": "Error"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class ResetPassword(APIView):
+    permission_classes = []
+    
+    def post(self, request,id):
+        password = request.data.get('password')
+        id = request.data.get('id')
+        
+        try:
+            user = User.objects.get(pk=id)
+            if user:
+                user.set_password(password)
+                user.save()
+                # usertype = user.user_type
+                return Response({"message": "Password reset success"}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"message": f"Error: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 
 
 class AdminLoginView(APIView):
@@ -189,10 +239,16 @@ class AdminLoginView(APIView):
             )
 
         refresh = RefreshToken.for_user(user)
+        refresh["user_id"] = user.id
+        refresh["name"] = user.full_name
+        refresh["email"] = user.email
+        refresh["isAuthenticated"] = user.is_authenticated
+        refresh["isAdmin"] = user.is_superuser
         access_token = str(refresh.access_token)
         refresh_token = str(refresh)
 
         content = {
+            "user_id":user.id,
             "email": user.email,
             "name": user.full_name,
             "access_token": access_token,
@@ -222,21 +278,23 @@ class UserBlockUnblockView(APIView):
         except User.DoesNotExist:
             return Response({"status": "error", "message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
+class AdminReportListView(APIView):
+    def get(self, request):
+        reports = PostReport.objects.all().select_related('post', 'reporter')
+        serializer = ReportSerializer(reports, many=True)
+        print("the report serilizer rezponse",serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-# class UserProfileView(APIView):
-#     permission_classes = [IsAuthenticated]
+    def patch(self, request, report_id):
+        try:
+            report = PostReport.objects.get(id=report_id)
+            action = request.data.get('action')
 
-#     def get(self, request):
-#         user = request.user
-#         serializer = UserSerializer(user)
-#         return Response(serializer.data, status=status.HTTP_200_OK)
+            if action == 'block':
+                report.post.is_blocked = True
+                report.post.save()
+                return Response({"message": "Post has been blocked"}, status=status.HTTP_200_OK)
 
-#     def patch(self, request):
-#         user = request.user
-#         serializer = UserSerializer(user, data=request.data, partial=True)
-#         if serializer.is_valid():
-#             if "profile_picture" in request.data:
-#                 user.profile_picture = request.data["profile_picture"]
-#             serializer.save()
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
+        except PostReport.DoesNotExist:
+            return Response({"error": "Report not found"}, status=status.HTTP_404_NOT_FOUND)

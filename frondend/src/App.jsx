@@ -14,8 +14,8 @@ function App() {
     <>
       <BrowserRouter>
         <Routes>
-          {/* <Route path="/" element={<AuthUser><LandingPage /></AuthUser>}></Route> */}
-          <Route path="/" element={<LandingPage />}></Route>
+          <Route path="/" element={<AuthUser><LandingPage /></AuthUser>}></Route>
+          {/* <Route path="/" element={<LandingPage />}></Route> */}
           <Route path="user/*" element={<UserWrapper></UserWrapper>}></Route>
           <Route path="admin/*" element={<AdminWrapper />}></Route>
         </Routes>

@@ -1,5 +1,5 @@
 import {jwtDecode} from 'jwt-decode';
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { FaHome, FaSearch, FaBell, FaEnvelope, FaUserCircle, FaSignOutAlt, FaPlus,FaCompass } from 'react-icons/fa'; 
@@ -7,6 +7,8 @@ import UserLogout from '../UserLogout';
 import CreatePostPage from '../post/CreatePost'; 
 import SearchModal from '../SearchModel';
 import { useSelector } from 'react-redux';
+import getNotificationApi from '../post/getNotificationsApi';
+import Notifications from '../post/Notifications';
 
 const SidebarContainer = styled.div`
   width: 250px;
@@ -101,7 +103,10 @@ const SidebarFooter = styled.div`
 const NavBar = ({ fetchPosts }) => {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const {profile_picture } = useSelector((state) => state.auth);
+  const [showNotifications , setShowNotifications] = useState(false)
+  const [notification , setNotification] = useState([])
+
+  const {user_id, name } = useSelector((state) => state.auth);
   const backendUrl='http://127.0.0.1:8000';
 
 
@@ -120,6 +125,56 @@ const NavBar = ({ fetchPosts }) => {
   let decoded = jwtDecode(accessToken);
   console.log("user decode",decoded.name);
 
+
+  useEffect(() => {
+    const fetchData = async () =>{
+      try {
+        const data = await getNotificationApi()
+        setNotification(data)
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    if (user_id ) {
+      fetchData()
+    }
+  },[user_id])
+
+  useEffect(() =>{
+    if (user_id) {
+      const accessToken = localStorage.getItem('access')
+      const websocketProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+      const socket = new WebSocket(`${websocketProtocol}${window.location.host}/ws/notification/?token=${accessToken}`);
+
+      socket.onopen = () => {
+        console.log('websocket connection established')
+      }
+
+      socket.onmessage = (event) => {
+        const newNotification = JSON.parse(event.data)
+        console.log(newNotification)
+        if (newNotification.type === 'notification' ) {
+          setNotification((prevNotifications) => [...prevNotifications,newNotification.payload])
+        }
+      }
+
+      socket.onclose = (event) => {
+        console.log('Websocket connection closed' , event)
+      }
+      return () =>{
+        socket.close()
+      }
+    }
+  },[user_id])
+
+  const removeNotification = (notificationIdToRemove) => {
+    setNotification((prevNotifications) =>
+      prevNotifications.filter(
+        (notification) => notification.id !== notificationIdToRemove
+      )
+    )
+  }
+
   return (
     <SidebarContainer>
       <Logo to="/user/home">Connectify</Logo>
@@ -134,12 +189,29 @@ const NavBar = ({ fetchPosts }) => {
           <FaSearch />
           <span>Search</span>
         </NavIcon>
-        <NavIcon>
+        {/* <NavIcon>
           <Link to="/user/notifications">
             <FaBell />
             <span>Notifications</span>
           </Link>
+        </NavIcon> */}
+
+        <NavIcon onClick={() =>setShowNotifications(true)}>
+        <FaBell />
+        <span>Notification</span>
+          <span
+            className={`text-xs ml-2 text-blue-700 align-top${
+              notification?.length === 0
+                ? ""
+                : "border border-black align-top rounded-full"
+            }`}
+          >
+            {" "}
+            {notification?.length === 0 ? "" : notification?.length}{" "}
+          </span>
         </NavIcon>
+
+
         <NavIcon>
           <Link to="/user/messages">
             <FaEnvelope />
@@ -168,7 +240,7 @@ const NavBar = ({ fetchPosts }) => {
 
 <NavIcon>
   <Link to="/user/profile">
-    {profile_picture ? (
+    {/* {profile_picture ? (
       <img
         src={`${backendUrl}${profile_picture}`}
         alt="Profile"
@@ -179,9 +251,9 @@ const NavBar = ({ fetchPosts }) => {
           marginRight: '10px',
         }}
       />
-    ) : (
+    ) : ( */}
       <FaUserCircle />
-    )}
+    {/* )} */}
     <span>Profile</span>
   </Link>
 </NavIcon>
@@ -204,6 +276,12 @@ const NavBar = ({ fetchPosts }) => {
       <SearchModal
         isOpen={isSearchModalOpen}
         onClose={closeSearchModal}
+      />
+      <Notifications 
+      isVisible={showNotifications} 
+      onClose={()=>setShowNotifications(false)} 
+      notification={notification} 
+      removeNotification={removeNotification}
       />
     </SidebarContainer>
   );

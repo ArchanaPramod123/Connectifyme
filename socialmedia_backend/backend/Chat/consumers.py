@@ -23,29 +23,60 @@ class ChatConsumer(AsyncWebsocketConsumer):
         print("dissconnect withe the websoket")
         await self.channel_layer.group_discard(self.room_group_name,self.channel_name)
 
+    # async def receive(self, text_data):
+    #     print("receive withe the websoket")
+    #     if 'user' not in self.scope:
+    #         print("User is not in scope")
+    #         return
+    #     text_data_json = json.loads(text_data)
+    #     message = text_data_json['message']
+    #     user = self.scope['user']
+    #     user_serializer = UserSerializer(user)
+    #     email = user_serializer.data['email']
+
+    #     new_message = await self.create_message(self.room_id,message,email)
+
+    #     await self.channel_layer.group_send(
+    #         self.room_group_name,
+    #         {
+    #             'type':'chat_message',
+    #             'message':message,
+    #             'room_id':self.room_id,
+    #             'sender_email':email,
+    #             'created':timesince(new_message.created_at),
+    #         }
+    #     )
+
     async def receive(self, text_data):
-        print("receive withe the websoket")
+        print("receive with the websocket")
         if 'user' not in self.scope:
             print("User is not in scope")
             return
+
         text_data_json = json.loads(text_data)
-        message = text_data_json['message']
-        user = self.scope['user']
-        user_serializer = UserSerializer(user)
-        email = user_serializer.data['email']
+        message_type = text_data_json.get('type')
 
-        new_message = await self.create_message(self.room_id,message,email)
+        if message_type == 'video_call':
+            await self.handle_video_call(text_data_json)
+        else:
+            message = text_data_json['message']
+            user = self.scope['user']
+            user_serializer = UserSerializer(user)
+            email = user_serializer.data['email']
 
-        await self.channel_layer.group_send(
-            self.room_group_name,
-            {
-                'type':'chat_message',
-                'message':message,
-                'room_id':self.room_id,
-                'sender_email':email,
-                'created':timesince(new_message.created_at),
-            }
-        )
+            new_message = await self.create_message(self.room_id, message, email)
+
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'chat_message',
+                    'message': message,
+                    'room_id': self.room_id,
+                    'sender_email': email,
+                    'created': timesince(new_message.created_at),
+                }
+            )
+
 
     async def chat_message(self,event):
         print("chat_message withe the websoket")
@@ -70,3 +101,40 @@ class ChatConsumer(AsyncWebsocketConsumer):
         message = Message.objects.create(text=message,room=room,sender=user)
         message.save()
         return message
+    
+
+async def handle_video_call(self, data):
+    room_id = f'room-{self.room_id}'  # Ensure room ID is consistent
+    print("Handling video call")
+    await self.channel_layer.group_send(
+        self.room_group_name,
+        {
+            'type': 'video_call',
+            'caller': data['caller'],
+            'callee': data['callee'],
+            'room_id': room_id  # Include the room ID for redirection
+        }
+    )
+
+
+    # async def video_call(self, event):
+    #     print("Video call initiated")
+    #     caller = event['caller']
+    #     callee = event['callee']
+    #     await self.send(text_data=json.dumps({
+    #         'type': 'video_call',
+    #         'caller': caller,
+    #         'callee': callee,
+    #     }))
+
+async def video_call(self, event):
+    print("Video call initiated")
+    caller = event['caller']
+    callee = event['callee']
+    room_id = event['room_id']  # Use the consistent room ID
+    await self.send(text_data=json.dumps({
+        'type': 'video_call',
+        'caller': caller,
+        'callee': callee,
+        'room_id': room_id  # Send room ID for client redirection
+    }))

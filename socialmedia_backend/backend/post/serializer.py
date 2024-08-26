@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from account.models import User
-from .models import Posts, Comment, Follow
+from .models import Posts, Comment, Follow, PostReport, Notification
 from account.serializers import UserSerializer
 
 
@@ -126,3 +126,48 @@ class UserSerializerProfile(serializers.ModelSerializer):
         ]
 
 
+
+# class ReportSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = PostReport
+#         fields = ['post', 'reporter', 'reason', 'created_at']
+
+
+
+class ReportSerializer(serializers.ModelSerializer):
+    post_owner = serializers.CharField(source='post.user.full_name', read_only=True)
+    post_image = serializers.ImageField(source='post.img', read_only=True)
+    reporter_name = serializers.CharField(source='reporter.full_name', read_only=True)
+    is_active = serializers.BooleanField(source='post.is_blocked', read_only=True)
+    # print("the repot",post_image)
+    class Meta:
+        model = PostReport
+        fields = ['post', 'post_owner', 'post_image', 'reporter_name', 'reason', 'created_at', 'is_active']
+
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     response["post_details"] = {
+    #         "id": instance.post.id,
+    #         "body": instance.post.body,
+    #         "user": instance.post.user.full_name,
+    #         "img": instance.post.img.url if instance.post.img else None,
+    #     }
+    #     response["reporter_details"] = {
+    #         "id": instance.reporter.id,
+    #         "full_name": instance.reporter.full_name,
+    #     }
+    #     return response
+
+class NotificationSerializer(serializers.ModelSerializer):
+    from_user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Notification
+        fields = '__all__'
+        read_only_fields = ('notification_type',)
+
+    def validate_notification_type(self,value):
+        choices = dict(Notification.NOTIFICATION_TYPES)
+        if value not in choices:
+            raise serializers.ValidationError("Invalid notification type.")
+        return value
