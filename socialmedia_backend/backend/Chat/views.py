@@ -44,14 +44,6 @@ class RoomMessageView(APIView):
             print("the message room",messages)
             serialized_messages = self.serializer_class(messages,many=True).data
             print("the serilizer of the messages of the ",serialized_messages)
-
-            # user_serializer = UserSerializer(request.user)
-            # user_data = user_serializer.data
-            # response_data = {
-            #     "messages": serialized_messages,
-            #     "user_profile": user_data,
-            # }
-
             return Response(serialized_messages,status=status.HTTP_200_OK)
         except Room.DoesNotExist:
             return Response('room not found', status=status.HTTP_404_NOT_FOUND)

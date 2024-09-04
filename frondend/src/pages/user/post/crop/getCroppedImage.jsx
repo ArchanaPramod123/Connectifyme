@@ -1,4 +1,3 @@
-// getCroppedImages.jsx
 const createImage = (url) => {
     return new Promise((resolve, reject) => {
       const image = new Image();

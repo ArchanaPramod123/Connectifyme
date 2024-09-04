@@ -1,164 +1,3 @@
-// import React, { useState, useEffect } from "react";
-// import { FaHeart, FaRegHeart, FaRegComment, FaEllipsisH } from "react-icons/fa";
-// import axios from "axios";
-// import CommentModal from "./CommentModel";
-// import { Link } from "react-router-dom";
-// import { useSelector } from 'react-redux';
-// import ReportModal  from './UserPostReport'
-// const Post = ({ post }) => {
-//   const baseURL = "http://127.0.0.1:8000";
-//   const [isLiked, setIsLiked] = useState(post.is_liked);
-//   const [comments, setComments] = useState(post.comments || []);
-//   const [totalLikes, setTotalLikes] = useState(post.total_likes);
-//   const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
-//   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-//   // const user = useSelector((state) => state.auth.user_id);
-//   // const user = useSelector((state) => state.authentication_user);
-//   const user = useSelector((state) => state.auth.user_id);
-
-
-
-//   const getToken = () => {
-//     return localStorage.getItem("access");
-//   };
-
-//   useEffect(() => {
-//     console.log("postlikeddddddddddddddddddddddddddd", post.is_liked);
-//     setIsLiked(post.is_liked);
-//     setTotalLikes(post.total_likes);
-//   }, [post]);
-
-//   const handleLikeToggle = async () => {
-//     try {
-//       const response = await axios.post(
-//         `${baseURL}/post/like-post/${post.id}/`,
-//         {},
-//         {
-//           headers: {
-//             Authorization: `Bearer ${getToken()}`,
-//           },
-//         }
-//       );
-//       setIsLiked(response.data.is_liked);
-//       setTotalLikes(response.data.total_likes);
-//       toast.success("successfully liked");
-//     } catch (error) {
-//       toast.success("successfully unliked");
-//       console.error("Error liking/unliking post:", error);
-//     }
-//   };
-
-
-//   const handleReportSubmit = async (reason) => {
-//     try {
-//       await axios.post(
-//         `${baseURL}/post/report-post/${post.id}/`,
-//         { reason },
-//         {
-//           headers: {
-//             Authorization: `Bearer ${getToken()}`,
-//           },
-//         }
-//       );
-//       setIsReportModalOpen(false);
-//       alert("Report submitted successfully");
-//     } catch (error) {
-//       console.error("Error reporting post:", error);
-//     }
-//   };
-
-//   return (
-//     // <div className="border border-gray-300 my-5 p-5 rounded-lg bg-white">
-//     <div>
-//       <div className="flex items-center w-20">
-//         {post.user.profile_picture && (
-//           <img
-//             src={`${baseURL}${post.user.profile_picture}`}
-//             alt="Profile"
-//             className="w-10 h-10 rounded-full mr-3"
-//           />
-//         )}
-//         {/* <h2 className="text-lg font-bold">{post.user.full_name}</h2> */}
-//         <Link
-//           to={`/user/profile/${post.user.id}`}
-//           className="text-lg font-bold"
-//         >
-//           {post.user.full_name}
-//         </Link>
-
-
-//         <div className="relative" style={{ marginLeft: '350px' }}>
-//         <button className="focus:outline-none w-5">
-//           <FaEllipsisH className="text-xl" />
-//         </button>
-//         <div className="absolute right-0 mt-2 py-2 w-48 bg-white border rounded-lg shadow-xl">
-//           {user.user_id === post.user.id ? (
-//             <>
-//               <button className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-//                 Update
-//               </button>
-//               <button className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
-//                 Delete
-//               </button>
-//             </>
-//           ) : (
-//             <button
-//               className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-//               onClick={() => setIsReportModalOpen(true)}
-//             >
-//               Report
-//             </button>
-//           )}
-//         </div>
-//       </div>
-//       </div>
-
-
-//       {post.img && <img src={post.img} alt="Post" className="w-full mt-3 rounded-lg shadow-md" />}
-      
-//       <div className="flex items-center mt-3">
-//         <button onClick={handleLikeToggle} className="mr-3 focus:outline-none">
-//           {isLiked ? (
-//             <FaHeart className="text-2xl text-red-500" />
-//           ) : (
-//             <FaRegHeart className="text-2xl" />
-//           )}
-//         </button>
-//         <button
-//           onClick={() => setIsCommentModalOpen(true)}
-//           className="focus:outline-none"
-//         >
-//           <FaRegComment className="text-2xl" />
-//         </button>
-//       </div>
-//       <p className="mt-3 font-medium">Likes: {totalLikes}</p>
-//       <p className="mt-3 font-medium">{post.body}</p>
-//       <CommentModal
-//         postId={post.id}
-//         comments={comments}
-//         setComments={setComments}
-//         isOpen={isCommentModalOpen}
-//         onClose={() => setIsCommentModalOpen(false)}
-       
-//       />
-
-
-// <ReportModal
-//         isOpen={isReportModalOpen}
-//         onClose={() => setIsReportModalOpen(false)}
-//         onSubmit={handleReportSubmit}
-//       />
-//     </div>
-//   );
-// };
-
-// export default Post;
-
-
-
-
-
-
 import React, { useState, useEffect } from "react";
 import { FaHeart, FaRegHeart, FaRegComment, FaEllipsisH } from "react-icons/fa";
 import axios from "axios";
@@ -169,7 +8,7 @@ import ReportModal from "./UserPostReport";
 import { Toaster, toast } from 'sonner';
 
 const Post = ({ post }) => {
-  const baseURL = "http://127.0.0.1:8000";
+  const baseURL = import.meta.env.VITE_BASE_URL;
   const [isLiked, setIsLiked] = useState(post.is_liked);
   const [comments, setComments] = useState(post.comments || []);
   const [totalLikes, setTotalLikes] = useState(post.total_likes);
@@ -209,7 +48,6 @@ const Post = ({ post }) => {
     try {
       console.log("the reson of the report sumit is ",reason);
       console.log("post",post);
-      // console.log("reported",user.id);
       console.log("reson",reason);
       
             
@@ -229,10 +67,8 @@ const Post = ({ post }) => {
         }
       );
       setIsReportModalOpen(false);
-      // alert("Report submitted successfully");
       toast.success('Report submitted successfully');
     } catch (error) {
-      // console.error("Error reporting post:", error);
       console.error("Error reporting post:", error.response?.data || error.message);
     }
   };

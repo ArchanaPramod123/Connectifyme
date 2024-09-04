@@ -4,16 +4,14 @@ import { useNavigate } from "react-router-dom";
 import { Toaster, toast } from "sonner";
 import ProfileCrop from "../post/crop/ProfileCrop";
 
-const baseURL = "http://127.0.0.1:8000";
-
 const CreateProfile = () => {
   const [profilePicture, setProfilePicture] = useState(null);
   const [croppedProfilePicture, setCroppedProfilePicture] = useState(null);
   const [bio, setBio] = useState("");
   const [username, setUsername] = useState("");
   const [showCropper, setShowCropper] = useState(false);
-
-  const [isPrivate, setIsPrivate] = useState(false); 
+  const baseURL = import.meta.env.VITE_BASE_URL;
+  const [isPrivate, setIsPrivate] = useState(false);
   console.log("is private is true or false", isPrivate);
 
   const navigate = useNavigate();
@@ -36,7 +34,7 @@ const CreateProfile = () => {
     formData.append("bio", bio);
     formData.append("username", username);
 
-    formData.append("is_private", isPrivate); 
+    formData.append("is_private", isPrivate);
 
     try {
       await axios.patch(`${baseURL}/post/update_profile/`, formData, {

@@ -72,6 +72,7 @@ class CommentSerializer(serializers.ModelSerializer):
         source="user.profile_picture", read_only=True
     )
     created_time = serializers.ReadOnlyField()
+    replies = serializers.SerializerMethodField()
 
     class Meta:
         model = Comment
@@ -84,11 +85,19 @@ class CommentSerializer(serializers.ModelSerializer):
             "created_at",
             "user_full_name",
             "created_time",
+            "parent",
+            "replies",
         ]
         extra_kwargs = {"user": {"read_only": True}, "post": {"read_only": True}}
+    def get_replies(self, obj):
+        if obj.replies.exists():
+            return CommentSerializer(obj.replies.all(), many=True).data
+        return []
+    # def get_replies(self, obj):
+    #     replies = Comment.objects.filter(parent=obj).order_by('created_time')
+    #     return CommentSerializer(replies, many=True).data
 
 
-# serializers.py
 class UserSerializerProfile(serializers.ModelSerializer):
     follower_count = serializers.SerializerMethodField()
     following_count = serializers.SerializerMethodField()
@@ -125,15 +134,6 @@ class UserSerializerProfile(serializers.ModelSerializer):
             "is_following",
         ]
 
-
-
-# class ReportSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = PostReport
-#         fields = ['post', 'reporter', 'reason', 'created_at']
-
-
-
 class ReportSerializer(serializers.ModelSerializer):
     post_owner = serializers.CharField(source='post.user.full_name', read_only=True)
     post_image = serializers.ImageField(source='post.img', read_only=True)
@@ -143,20 +143,6 @@ class ReportSerializer(serializers.ModelSerializer):
     class Meta:
         model = PostReport
         fields = ['post', 'post_owner', 'post_image', 'reporter_name', 'reason', 'created_at', 'is_active']
-
-    # def to_representation(self, instance):
-    #     response = super().to_representation(instance)
-    #     response["post_details"] = {
-    #         "id": instance.post.id,
-    #         "body": instance.post.body,
-    #         "user": instance.post.user.full_name,
-    #         "img": instance.post.img.url if instance.post.img else None,
-    #     }
-    #     response["reporter_details"] = {
-    #         "id": instance.reporter.id,
-    #         "full_name": instance.reporter.full_name,
-    #     }
-    #     return response
 
 class NotificationSerializer(serializers.ModelSerializer):
     from_user = UserSerializer(read_only=True)

@@ -1,12 +1,12 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer, OtpVerificationSerializer
+from .serializers import UserSerializer, OtpVerificationSerializer,UserPicSerializer
 from .models import User
 from .emails import send_otp_via_mail, resend_otp_via_mail,forgot_password_mail
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework import generics
+from rest_framework import generics, permissions
 from rest_framework.permissions import IsAuthenticated
 from post.models import PostReport,Posts
 from post.serializer import ReportSerializer
@@ -278,6 +278,7 @@ class UserBlockUnblockView(APIView):
         except User.DoesNotExist:
             return Response({"status": "error", "message": "User not found."}, status=status.HTTP_404_NOT_FOUND)
 
+
 class AdminReportListView(APIView):
     def get(self, request):
         reports = PostReport.objects.all().select_related('post', 'reporter')
@@ -298,3 +299,13 @@ class AdminReportListView(APIView):
             return Response({"error": "Invalid action"}, status=status.HTTP_400_BAD_REQUEST)
         except PostReport.DoesNotExist:
             return Response({"error": "Report not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+
+class UserPictureView(generics.RetrieveAPIView):
+    serializer_class = UserPicSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_object(self):
+        print("the printedhdc------------------",self.request.user)
+        print("the printedhdc------------------",self.request.user.profile_picture)
+        return self.request.user

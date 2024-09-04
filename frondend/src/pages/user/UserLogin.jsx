@@ -15,8 +15,7 @@ const UserLogin = () => {
   const { loading, error } = useSelector((state) => state.auth);
   const [formError, setFormError] = useState('');
   const navigate = useNavigate();
-  const baseURL = 'http://127.0.0.1:8000/';
-
+   const baseURL = import.meta.env.VITE_BASE_URL;
   // useEffect(() => {
   //   if (isAuthenticated) {
   //     navigate('/user/home');
@@ -36,7 +35,7 @@ const UserLogin = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(baseURL + 'api/login/', formData);
+      const response = await axios.post(baseURL + '/api/login/', formData);
       console.log("i wnat to check the user_id is store",formData);
       
 

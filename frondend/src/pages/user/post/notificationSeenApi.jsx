@@ -1,5 +1,3 @@
-
-
 import axiosInstance from '../../../utils/axiosInstance'
 
 const notificationSeenApi = async (notificationId) => {

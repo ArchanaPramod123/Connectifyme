@@ -32,7 +32,9 @@ class Comment(models.Model):
     post = models.ForeignKey(Posts,related_name='comments',on_delete=models.CASCADE)
     user=models.ForeignKey(User,on_delete=models.CASCADE)
     body=models.TextField()
+    parent = models.ForeignKey('self', null=True, blank=True, related_name='replies', on_delete=models.CASCADE)
     created_at=models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self) -> str:
         return '%s - %s - %s' % (self.post.id,self.body,self.user.full_name)

@@ -18,6 +18,7 @@ urlpatterns = [
     path('forgot_pass/', ForgotPassView.as_view(), name='forgot_pass'),
     path('reset_password/<int:id>/',ResetPassword.as_view(),name="reset_password"),
     # path('create-profile/', UserProfileView.as_view(), name='create_profile'),
+    path('profile_pic/', UserPictureView.as_view(), name='user-profile'),
 
     path('adminlogin/',AdminLoginView.as_view(),name="adminlogin"),
     path('user-list/', UserListView.as_view(), name='user_list'),

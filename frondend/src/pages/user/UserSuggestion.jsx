@@ -4,12 +4,10 @@ import { Link } from "react-router-dom";
 
 const Suggestion = () => {
   const [suggestions, setSuggestions] = useState([]);
-  const baseURL = "http://127.0.0.1:8000/";
-
-  // Fetch suggestions from the backend
+  const baseURL = import.meta.env.VITE_BASE_URL;
   const fetchSuggestions = async () => {
     try {
-      const response = await axios.get(baseURL + "post/suggesions/", {
+      const response = await axios.get(baseURL + "/post/suggesions/", {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("access")}`,
         },
@@ -23,7 +21,7 @@ const Suggestion = () => {
   const handleFollow = async (userId) => {
     try {
       await axios.post(
-        baseURL + "post/follow-unfollow/",
+        baseURL + "/post/follow-unfollow/",
         { user_id: userId },
         {
           headers: {
@@ -31,7 +29,7 @@ const Suggestion = () => {
           },
         }
       );
-      fetchSuggestions(); // Refresh the suggestions list after following
+      fetchSuggestions(); 
     } catch (error) {
       console.error("Error following user:", error);
     }
@@ -40,7 +38,7 @@ const Suggestion = () => {
   const handleUnfollow = async (userId) => {
     try {
       await axios.post(
-        baseURL + "post/follow-unfollow/",
+        baseURL + "/post/follow-unfollow/",
         { user_id: userId },
         {
           headers: {
@@ -48,7 +46,7 @@ const Suggestion = () => {
           },
         }
       );
-      fetchSuggestions(); // Refresh the suggestions list after unfollowing
+      fetchSuggestions(); 
     } catch (error) {
       console.error("Error unfollowing user:", error);
     }
@@ -76,7 +74,7 @@ const Suggestion = () => {
                   to={`/user/profile/${user.id}`}
                   className="text-lg font-bold"
                 >
-                  {user.username}
+                  {user.full_name}
                 </Link>
                 <div className="text-xs text-gray-500">Suggested for you</div>
               </div>

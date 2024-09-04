@@ -1,27 +1,25 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Toaster, toast } from "sonner";
-import { FaHeart, FaRegHeart, FaEllipsisH } from "react-icons/fa"; 
-import { useSelector } from 'react-redux';
+import { FaHeart, FaRegHeart, FaEllipsisH } from "react-icons/fa";
+import { useSelector } from "react-redux";
 
 const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
   const [post, setPost] = useState(null);
   const [error, setError] = useState("");
   const [liked, setLiked] = useState(false);
-  const [showMenu, setShowMenu] = useState(false); 
+  const [showMenu, setShowMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedBody, setEditedBody] = useState(""); 
+  const [editedBody, setEditedBody] = useState("");
   const userId = useSelector((state) => state.auth.user_id);
-  
-  
-  
+  const baseURL = import.meta.env.VITE_BASE_URL;
 
   useEffect(() => {
     const fetchPostDetails = async () => {
       const token = localStorage.getItem("access");
       try {
         const response = await axios.get(
-          `http://localhost:8000/post/post-detail/${postID}/`,
+          `${baseURL}/post/post-detail/${postID}/`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -48,7 +46,7 @@ const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
     const token = localStorage.getItem("access");
     try {
       const response = await axios.post(
-        `http://localhost:8000/post/toggle-like/${postID}/`,
+        `${baseURL}/post/toggle-like/${postID}/`,
         {},
         {
           headers: {
@@ -69,13 +67,13 @@ const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
   const handleDeletePost = async () => {
     const token = localStorage.getItem("access");
     try {
-      await axios.delete(`http://localhost:8000/post/delete-post/${postID}/`, {
+      await axios.delete(`${baseURL}/post/delete-post/${postID}/`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      onDeletePost(postID); 
-      onClose(); 
+      onDeletePost(postID);
+      onClose();
       toast.success("delete Successfuly");
     } catch (error) {
       setError("Failed to delete post");
@@ -83,11 +81,11 @@ const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
   };
 
   const handleUpdatePost = async (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     const token = localStorage.getItem("access");
     try {
       const response = await axios.patch(
-        `http://localhost:8000/post/update-post/${postID}/`,
+        `${baseURL}/post/update-post/${postID}/`,
         { body: editedBody },
         {
           headers: {
@@ -95,7 +93,7 @@ const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
           },
         }
       );
-      
+
       setPost((prevPost) => ({
         ...prevPost,
         body: response.data.body,
@@ -134,7 +132,7 @@ const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
         <div className="flex flex-col items-center">
           <img
             className="w-full h-auto max-h-96 object-cover rounded-lg mb-4"
-            src={`http://localhost:8000${post.img}`}
+            src={`${baseURL}${post.img}`}
             alt={post.body}
           />
           {isEditing ? (
@@ -162,34 +160,35 @@ const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
               {liked ? <FaHeart className="text-red-500" /> : <FaRegHeart />}
             </button>
             {post.user.id === userId && (
-               <>
-            <button onClick={() => setShowMenu(!showMenu)} className="text-xl">
-              <FaEllipsisH />
-            </button>
-            {showMenu && (
-              <div className="absolute top-12 right-4 bg-white border rounded shadow-lg">
+              <>
                 <button
-                  onClick={() => {
-                    setIsEditing(true);
-                    setEditedBody(post.body);
-                    setShowMenu(false);
-                  }}
-                  className="block px-4 py-2 text-left w-full"
+                  onClick={() => setShowMenu(!showMenu)}
+                  className="text-xl"
                 >
-                  Update
+                  <FaEllipsisH />
                 </button>
-                <button
-                  onClick={handleDeletePost}
-                  className="block px-4 py-2 text-left w-full text-red-600"
-                >
-                  Delete
-                </button>
-              </div>
+                {showMenu && (
+                  <div className="absolute top-12 right-4 bg-white border rounded shadow-lg">
+                    <button
+                      onClick={() => {
+                        setIsEditing(true);
+                        setEditedBody(post.body);
+                        setShowMenu(false);
+                      }}
+                      className="block px-4 py-2 text-left w-full"
+                    >
+                      Update
+                    </button>
+                    <button
+                      onClick={handleDeletePost}
+                      className="block px-4 py-2 text-left w-full text-red-600"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </>
             )}
-            </>
-            )}
-            
-          
           </div>
           <div className="w-full mt-4">
             <span className="text-lg">{post.total_likes} likes</span>
@@ -206,7 +205,7 @@ const PostDetailPage = ({ postID, onClose, isPostDetailOpen }) => {
                 >
                   <img
                     className="w-10 h-10 object-cover rounded-full"
-                    src={`http://localhost:8000${comment.profile_picture}`}
+                    src={`${baseURL}${comment.profile_picture}`}
                     alt={comment.user_full_name}
                   />
                   <div className="flex-1">

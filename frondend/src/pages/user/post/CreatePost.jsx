@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
-import Modal from 'react-modal';
-import CropImage from './crop/CropImage';
-import { Toaster, toast } from 'sonner';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+import Modal from "react-modal";
+import CropImage from "./crop/CropImage";
+import { Toaster, toast } from "sonner";
 
 const CreatePostContainer = styled.div`
   width: 600px;
@@ -45,30 +45,30 @@ const Button = styled.button`
 
 const modalStyles = {
   content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    padding: '0',
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)",
+    padding: "0",
   },
   overlay: {
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
 };
 
 const CreatePostPage = ({ isOpen, onRequestClose, fetchPosts }) => {
-  const [body, setBody] = useState('');
+  const [body, setBody] = useState("");
   const [image, setImage] = useState(null);
   const [croppedImage, setCroppedImage] = useState(null);
   const [error, setError] = useState(null);
   const [isCropping, setIsCropping] = useState(false);
   const navigate = useNavigate();
-
+  const baseURL = import.meta.env.VITE_BASE_URL;
   useEffect(() => {
     if (!isOpen) {
-      setBody('');
+      setBody("");
       setImage(null);
       setCroppedImage(null);
       setError(null);
@@ -91,26 +91,26 @@ const CreatePostPage = ({ isOpen, onRequestClose, fetchPosts }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData();
-    formData.append('body', body);
+    formData.append("body", body);
     if (croppedImage) {
-      const file = await blobToFile(croppedImage, 'croppedImage.jpg');
-      formData.append('img', file);
+      const file = await blobToFile(croppedImage, "croppedImage.jpg");
+      formData.append("img", file);
     }
 
     try {
-      await axios.post('http://127.0.0.1:8000/post/create-post/', formData, {
+      await axios.post(baseURL + "/post/create-post/", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${localStorage.getItem('access')}`,
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${localStorage.getItem("access")}`,
         },
       });
-      fetchPosts(); // Fetch the updated list of posts
-      toast.success('Post created successfully');
-      navigate('/user/home');
+      fetchPosts();
+      toast.success("Post created successfully");
+      navigate("/user/home");
       onRequestClose();
     } catch (error) {
-      setError('Error creating post');
-      toast.error('Failed to create post');
+      setError("Error creating post");
+      toast.error("Failed to create post");
     }
   };
 
@@ -126,9 +126,18 @@ const CreatePostPage = ({ isOpen, onRequestClose, fetchPosts }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onRequestClose={onRequestClose} style={modalStyles} ariaHideApp={false}>
+    <Modal
+      isOpen={isOpen}
+      onRequestClose={onRequestClose}
+      style={modalStyles}
+      ariaHideApp={false}
+    >
       {isCropping ? (
-        <CropImage imgUrl={image} aspectInit={1} setCroppedImg={handleCropComplete} />
+        <CropImage
+          imgUrl={image}
+          aspectInit={1}
+          setCroppedImg={handleCropComplete}
+        />
       ) : (
         <CreatePostContainer>
           <Form onSubmit={handleSubmit} encType="multipart/form-data">
@@ -138,12 +147,17 @@ const CreatePostPage = ({ isOpen, onRequestClose, fetchPosts }) => {
               onChange={(e) => setBody(e.target.value)}
               rows="4"
             />
-            <div className='w-[300px] h-[300px]'>
+            <div className="w-[300px] h-[300px]">
               <img className="w-full" src={croppedImage} alt="" />
             </div>
             <Input type="file" onChange={handleImageChange} />
             {error && <p>{error}</p>}
-            <Button className='hover:bg-red-500 transition ease-in' type="submit">Create Post</Button>
+            <Button
+              className="hover:bg-red-500 transition ease-in"
+              type="submit"
+            >
+              Create Post
+            </Button>
           </Form>
         </CreatePostContainer>
       )}

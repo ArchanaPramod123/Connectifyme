@@ -6,14 +6,14 @@ import { FaTimes } from 'react-icons/fa';
 const SearchModal = ({ isOpen, onClose }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-
+  const baseURL = import.meta.env.VITE_BASE_URL;
   const handleSearch = async (e) => {
     const query = e.target.value;
     setSearchQuery(query);
 
     if (query) {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/post/search-users/?q=${query}`, {
+        const response = await axios.get(baseURL+`/post/search-users/?q=${query}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('access')}`,
           },

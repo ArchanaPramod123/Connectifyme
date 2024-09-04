@@ -1,14 +1,23 @@
-import {jwtDecode} from 'jwt-decode';
-import React, { useState,useEffect } from 'react';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import { FaHome, FaSearch, FaBell, FaEnvelope, FaUserCircle, FaSignOutAlt, FaPlus,FaCompass } from 'react-icons/fa'; 
-import UserLogout from '../UserLogout';
-import CreatePostPage from '../post/CreatePost'; 
-import SearchModal from '../SearchModel';
-import { useSelector } from 'react-redux';
-import getNotificationApi from '../post/getNotificationsApi';
-import Notifications from '../post/Notifications';
+import { jwtDecode } from "jwt-decode";
+import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+import {
+  FaHome,
+  FaSearch,
+  FaBell,
+  FaEnvelope,
+  FaUserCircle,
+  FaSignOutAlt,
+  FaPlus,
+  FaCompass,
+} from "react-icons/fa";
+import UserLogout from "../UserLogout";
+import CreatePostPage from "../post/CreatePost";
+import SearchModal from "../SearchModel";
+import { useSelector } from "react-redux";
+import getNotificationApi from "../post/getNotificationsApi";
+import Notifications from "../post/Notifications";
 
 const SidebarContainer = styled.div`
   width: 250px;
@@ -28,7 +37,7 @@ const Logo = styled(Link)`
   color: black;
   font-size: 33px;
   margin-bottom: 40px;
-  font-family: 'Style Script', cursive;
+  font-family: "Style Script", cursive;
   text-decoration: none;
 `;
 
@@ -103,16 +112,14 @@ const SidebarFooter = styled.div`
 const NavBar = ({ fetchPosts }) => {
   const [isCreatePostModalOpen, setIsCreatePostModalOpen] = useState(false);
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
-  const [showNotifications , setShowNotifications] = useState(false)
-  const [notification , setNotification] = useState([])
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notification, setNotification] = useState([]);
 
-  const {user_id, name } = useSelector((state) => state.auth);
-  const backendUrl='http://127.0.0.1:8000';
-
+  const { user_id, name } = useSelector((state) => state.auth);
+  const WEBSOCKET_BASE_URL = import.meta.env.VITE_WEBSOCKET;
 
   const openSearchModal = () => setIsSearchModalOpen(true);
   const closeSearchModal = () => setIsSearchModalOpen(false);
-
 
   const openCreatePostModal = () => {
     setIsCreatePostModalOpen(true);
@@ -121,59 +128,64 @@ const NavBar = ({ fetchPosts }) => {
   const closeCreatePostModal = () => {
     setIsCreatePostModalOpen(false);
   };
-  const accessToken = localStorage.getItem('access');
+  const accessToken = localStorage.getItem("access");
   let decoded = jwtDecode(accessToken);
-  console.log("user decode",decoded.name);
-
+  console.log("user decode", decoded.name);
 
   useEffect(() => {
-    const fetchData = async () =>{
+    const fetchData = async () => {
       try {
-        const data = await getNotificationApi()
-        setNotification(data)
+        const data = await getNotificationApi();
+        setNotification(data);
       } catch (error) {
-        console.error(error)
+        console.error(error);
       }
-    }
-    if (user_id ) {
-      fetchData()
-    }
-  },[user_id])
-
-  useEffect(() =>{
+    };
     if (user_id) {
-      const accessToken = localStorage.getItem('access')
-      const websocketProtocol = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
-      const socket = new WebSocket(`${websocketProtocol}${window.location.host}/ws/notification/?token=${accessToken}`);
+      fetchData();
+    }
+  }, [user_id]);
+
+  useEffect(() => {
+    if (user_id) {
+      const accessToken = localStorage.getItem("access");
+      const websocketProtocol =
+        window.location.protocol === "https://" ? "wss://" : "ws://";
+      const socket = new WebSocket(
+        `${websocketProtocol}${WEBSOCKET_BASE_URL}/ws/notification/?token=${accessToken}`
+      );
 
       socket.onopen = () => {
-        console.log('websocket connection established')
-      }
+        console.log("websocket connection established");
+      };
 
       socket.onmessage = (event) => {
-        const newNotification = JSON.parse(event.data)
-        console.log(newNotification)
-        if (newNotification.type === 'notification' ) {
-          setNotification((prevNotifications) => [...prevNotifications,newNotification.payload])
+        const newNotification = JSON.parse(event.data);
+        console.log(newNotification);
+        if (newNotification.type === "notification") {
+          setNotification((prevNotifications) => [
+            ...prevNotifications,
+            newNotification.payload,
+          ]);
         }
-      }
+      };
 
       socket.onclose = (event) => {
-        console.log('Websocket connection closed' , event)
-      }
-      return () =>{
-        socket.close()
-      }
+        console.log("Websocket connection closed", event);
+      };
+      return () => {
+        socket.close();
+      };
     }
-  },[user_id])
+  }, [user_id]);
 
   const removeNotification = (notificationIdToRemove) => {
     setNotification((prevNotifications) =>
       prevNotifications.filter(
         (notification) => notification.id !== notificationIdToRemove
       )
-    )
-  }
+    );
+  };
 
   return (
     <SidebarContainer>
@@ -196,9 +208,9 @@ const NavBar = ({ fetchPosts }) => {
           </Link>
         </NavIcon> */}
 
-        <NavIcon onClick={() =>setShowNotifications(true)}>
-        <FaBell />
-        <span>Notification</span>
+        <NavIcon onClick={() => setShowNotifications(true)}>
+          <FaBell />
+          <span>Notification</span>
           <span
             className={`text-xs ml-2 text-blue-700 align-top${
               notification?.length === 0
@@ -211,17 +223,14 @@ const NavBar = ({ fetchPosts }) => {
           </span>
         </NavIcon>
 
-
         <NavIcon>
           <Link to="/user/messages">
             <FaEnvelope />
             <span>Messages</span>
           </Link>
-         
-
         </NavIcon>
         <NavIcon>
-          <Link to="/user/explore"> {/* Update link */}
+          <Link to="/user/explore">
             <FaCompass />
             <span>Explore</span>
           </Link>
@@ -237,10 +246,9 @@ const NavBar = ({ fetchPosts }) => {
           </Link>
           </NavIcon> */}
 
-
-<NavIcon>
-  <Link to="/user/profile">
-    {/* {profile_picture ? (
+        <NavIcon>
+          <Link to="/user/profile">
+            {/* {profile_picture ? (
       <img
         src={`${backendUrl}${profile_picture}`}
         alt="Profile"
@@ -252,14 +260,14 @@ const NavBar = ({ fetchPosts }) => {
         }}
       />
     ) : ( */}
-      <FaUserCircle />
-    {/* )} */}
-    <span>Profile</span>
-  </Link>
-</NavIcon>
+            <FaUserCircle />
+            {/* )} */}
+            <span>Profile</span>
+          </Link>
+        </NavIcon>
         <NavIcon>
-        <FaSignOutAlt />
-          <UserLogout /> {/* Use UserLogout as a component */}
+          <FaSignOutAlt />
+          <UserLogout />
         </NavIcon>
       </NavIcons>
       {/* <SidebarFooter>
@@ -273,15 +281,12 @@ const NavBar = ({ fetchPosts }) => {
         onRequestClose={closeCreatePostModal}
         fetchPosts={fetchPosts}
       />
-      <SearchModal
-        isOpen={isSearchModalOpen}
-        onClose={closeSearchModal}
-      />
-      <Notifications 
-      isVisible={showNotifications} 
-      onClose={()=>setShowNotifications(false)} 
-      notification={notification} 
-      removeNotification={removeNotification}
+      <SearchModal isOpen={isSearchModalOpen} onClose={closeSearchModal} />
+      <Notifications
+        isVisible={showNotifications}
+        onClose={() => setShowNotifications(false)}
+        notification={notification}
+        removeNotification={removeNotification}
       />
     </SidebarContainer>
   );

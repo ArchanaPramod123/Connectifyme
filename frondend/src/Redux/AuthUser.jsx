@@ -24,7 +24,4 @@ const AuthUser = ({ children }) => {
   return isAuthenticated ? <Navigate to="/user/home" /> : children;
 };
 
-export default AuthUser ;
-
-
-
+export default AuthUser;

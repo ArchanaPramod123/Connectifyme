@@ -47,7 +47,7 @@ const Chat = () => {
   const accessToken = localStorage.getItem('access');
   const user = jwtDecode(accessToken);
   const userId = useSelector(state => state.authentication_user.user_id);
-
+  const baseURL = import.meta.env.VITE_BASE_URL;
   useEffect(() => {
     const ws = new WebSocket(`ws://localhost:8000/ws/chat/${roomId}/`);
 

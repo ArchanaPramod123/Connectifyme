@@ -21,18 +21,20 @@ urlpatterns = [
     path('comment-post/<int:post_id>/', CommentCreateView.as_view(), name='comment-create'),
     path('comment-update/<int:comment_id>/', CommentUpdateView.as_view(), name='comment-update'),
     path('comment-delete/<int:comment_id>/', CommentDeleteView.as_view(), name='comment-delete'),
+    # path('comment-reply/<int:comment_id>/', reply_to_comment,name='comment-reply'),  # Add this if it's supposed to handle replies
+    path('comment-like/<int:comment_id>/', like_comment, name='comment-like'),  # Ensure this path matches
 
 
     path('post-detail/<int:post_id>/', PostDetailView.as_view(), name='post-detail'),
     path('update-post/<int:post_id>/', PostUpdateView.as_view(), name='update-post'),
     path('delete-post/<int:post_id>/', PostDeleteView.as_view(), name='delete-post'),
    
-   path('search-users/', SearchUserView.as_view(), name='search-users'),
-   path('explore/', ExploreView.as_view(), name='explore'),
+    path('search-users/', SearchUserView.as_view(), name='search-users'),
+    path('explore/', ExploreView.as_view(), name='explore'),
 
-   path('report-post/<int:post_id>/', ReportPostView.as_view(), name='report-post'),
+    path('report-post/<int:post_id>/', ReportPostView.as_view(), name='report-post'),
 
-   path('notifications/',NotificationsView.as_view(),name='notifications'),
-   path('notifications-seen/<int:pk>/',NotificationsSeenView.as_view(),name='notifications-seen'),
-   
+    path('notifications/',NotificationsView.as_view(),name='notifications'),
+    path('notifications-seen/<int:pk>/',NotificationsSeenView.as_view(),name='notifications-seen'),
+    
 ]

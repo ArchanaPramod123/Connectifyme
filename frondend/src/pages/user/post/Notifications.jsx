@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
-import PostDetailPage from '../profile/PostDetailPage';
-import notificationSeenApi from './notificationSeenApi';
+import React, { useState } from "react";
+import styled from "styled-components";
+import { useNavigate } from "react-router-dom";
+import PostDetailPage from "../profile/PostDetailPage";
+import notificationSeenApi from "./notificationSeenApi";
 
 const ModalOverlay = styled.div`
   position: fixed;
@@ -59,8 +59,6 @@ const NotificationItem = styled.div`
   align-items: center;
 `;
 
-
-
 const StyledTableRow = styled.tr`
   border-width: 0px;
   td {
@@ -74,10 +72,12 @@ const StyledTableRow = styled.tr`
   }
 `;
 
-
-
-
-const Notifications = ({ isVisible, onClose, notification, removeNotification }) => {
+const Notifications = ({
+  isVisible,
+  onClose,
+  notification,
+  removeNotification,
+}) => {
   const navigate = useNavigate();
   const [showPostDetailModal, setShowPostDetailModal] = useState(false);
   const [postId, setPostId] = useState(null);
@@ -106,41 +106,45 @@ const Notifications = ({ isVisible, onClose, notification, removeNotification })
     const { notification_type, post, comment } = notification;
 
     if (post) {
-      if (notification_type === 'comment') {
-        return 'commented on your post';
-      } else if (notification_type === 'like') {
-        return 'liked your post';
-      } else if (notification_type === 'post') {
-        return 'created a new post';
-      } else if (notification_type === 'blocked') {
-        return 'blocked your post';
+      if (notification_type === "comment") {
+        return "commented on your post";
+      } else if (notification_type === "like") {
+        return "liked your post";
+      } else if (notification_type === "post") {
+        return "created a new post";
+      } else if (notification_type === "blocked") {
+        return "blocked your post";
       }
     } else if (comment) {
-      if (notification_type === 'comment') {
-        return 'replied to your comment';
+      if (notification_type === "comment") {
+        return "replied to your comment";
       }
     }
-    return 'has started following you';
+    return "has started following you";
   };
 
   const onClick = async (notificationId, email, notificationType, postId) => {
     try {
-      if (notificationType === 'like' || notificationType === 'comment' || notificationType === 'post') {
+      if (
+        notificationType === "like" ||
+        notificationType === "comment" ||
+        notificationType === "post"
+      ) {
         if (!seenNotifications[notificationId]) {
           seenNotifications[notificationId] = true;
           setPostId(postId);
           setShowPostDetailModal(true);
         }
-      } else if (notificationType === 'blocked') {
-        console.log('Blocked');
+      } else if (notificationType === "blocked") {
+        console.log("Blocked");
       } else {
         navigate(`/profile/${email}`);
       }
       await notificationSeenApi(notificationId);
-      console.log('Notification id:', notificationId);
-      console.log('Email:', email);
-      console.log('Notification type id:', notificationType);
-      console.log('Post id:', postId);
+      console.log("Notification id:", notificationId);
+      console.log("Email:", email);
+      console.log("Notification type id:", notificationType);
+      console.log("Post id:", postId);
     } catch (error) {
       console.error(error);
     }
@@ -172,43 +176,58 @@ const Notifications = ({ isVisible, onClose, notification, removeNotification })
           )}
         </div> */}
 
-
-{sortedNotifications && sortedNotifications?.length > 0 ? (
-                    sortedNotifications.map((note, index) => (
-                      <StyledTableRow key={index}>
-                        {console.log('Notification:', note)}
-                        {console.log('postid:', note.post)}
-                        <td>
-                          <div className="flex items-center" style={{ cursor: 'pointer' }}>
-                            <img
-                              src={`${note.from_user.profile_picture}`}
-                              alt="User Display Pic"
-                              style={{ width: '40px', height: '40px', marginRight: '10px', borderRadius: '50%' }}
-                            />
-                            <p
-                              className="block w-full whitespace-nowrap bg-transparent px-4 py-2 text-sm public hover:bg-neutral-100 active:no-underline cursor-pointer"
-                              onClick={() => onClick(note.id, note.from_user.email, note.notification_type, note.post)}
-                              data-te-dropdown-item-ref
-                            >
-                              {note.notification_type === 'blocked'
-                                ? 'Admin blocked your post'
-                                : `${note.from_user.username} ${getNotificationMessage(
-                                    note
-                                  )}`}
-                            </p>
-                          </div>
-                        </td>
-                      </StyledTableRow>
-                    ))
-                  ) : (
-                    <p>No notifications</p>
-                  )}
-
-
-        
+        {sortedNotifications && sortedNotifications?.length > 0 ? (
+          sortedNotifications.map((note, index) => (
+            <StyledTableRow key={index}>
+              {console.log("Notification:", note)}
+              {console.log("postid:", note.post)}
+              <td>
+                <div
+                  className="flex items-center"
+                  style={{ cursor: "pointer" }}
+                >
+                  <img
+                    src={`${note.from_user.profile_picture}`}
+                    alt="User Display Pic"
+                    style={{
+                      width: "40px",
+                      height: "40px",
+                      marginRight: "10px",
+                      borderRadius: "50%",
+                    }}
+                  />
+                  <p
+                    className="block w-full whitespace-nowrap bg-transparent px-4 py-2 text-sm public hover:bg-neutral-100 active:no-underline cursor-pointer"
+                    onClick={() =>
+                      onClick(
+                        note.id,
+                        note.from_user.email,
+                        note.notification_type,
+                        note.post
+                      )
+                    }
+                    data-te-dropdown-item-ref
+                  >
+                    {note.notification_type === "blocked"
+                      ? "Admin blocked your post"
+                      : `${note.from_user.username} ${getNotificationMessage(
+                          note
+                        )}`}
+                  </p>
+                </div>
+              </td>
+            </StyledTableRow>
+          ))
+        ) : (
+          <p>No notifications</p>
+        )}
       </ModalContent>
       {showPostDetailModal && (
-        <PostDetailPage postID={postId} onClose={closePostModal} isPostDetailOpen={showPostDetailModal} />
+        <PostDetailPage
+          postID={postId}
+          onClose={closePostModal}
+          isPostDetailOpen={showPostDetailModal}
+        />
       )}
     </ModalOverlay>
   );

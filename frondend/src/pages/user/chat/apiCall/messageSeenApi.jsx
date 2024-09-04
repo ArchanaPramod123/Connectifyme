@@ -1,7 +1,4 @@
-
 import axiosInstance from "../../../../utils/axiosInstance";
-
-
 const messageSeenApi = async (userId) => {
     try {
       const response = await axiosInstance({
@@ -18,5 +15,4 @@ const messageSeenApi = async (userId) => {
       console.error(error);
     }
   };
-
 export default messageSeenApi

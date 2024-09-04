@@ -8,13 +8,13 @@ const AdminUserProfilePage = () => {
     const [profile, setProfile] = useState(null);
     const [posts, setPosts] = useState([]);
     const [error, setError] = useState("");
-
+     const baseURL = import.meta.env.VITE_BASE_URL;
     useEffect(() => {
         const fetchProfile = async () => {
             const token = localStorage.getItem("access");
             try {
                 const response = await axios.get(
-                    `http://localhost:8000/post/profile/${userId}/`,
+                    `${baseURL}/post/profile/${userId}/`,
                     {
                         headers: {
                             Authorization: `Bearer ${token}`,

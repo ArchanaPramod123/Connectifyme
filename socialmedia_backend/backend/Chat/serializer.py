@@ -17,14 +17,29 @@ class MessageSerializer(serializers.ModelSerializer):
     sender_email = serializers.EmailField(source='sender.email',read_only=True)
     created = serializers.SerializerMethodField(read_only = True)
 
+    image_url = serializers.SerializerMethodField(read_only=True)
+    video_url = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model= Message
         fields='__all__'
 
     def get_created(self,obj):
         return timesince(obj.created_at)
+    
 
+    
+    def get_image_url(self, obj):
+        if obj.image:
+            request = self.context.get('request')
+            return request.build_absolute_uri(obj.image.url)
+        return None
 
+    def get_video_url(self, obj):
+        if obj.video:
+            request = self.context.get('request')
+            return request.build_absolute_uri(obj.video.url)
+        return None
     
 class RoomListSerializer(serializers.ModelSerializer):
     unseen_message_count = serializers.SerializerMethodField()

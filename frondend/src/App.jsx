@@ -8,14 +8,18 @@ import UserWrapper from "./components/user/UserWrapper";
 import AdminWrapper from "./components/admin/AdminWrapper";
 import AuthUser from "./Redux/AuthUser";
 function App() {
-  // const [count, setCount] = useState(0)
-
   return (
     <>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<AuthUser><LandingPage /></AuthUser>}></Route>
-          {/* <Route path="/" element={<LandingPage />}></Route> */}
+          <Route
+            path="/"
+            element={
+              <AuthUser>
+                <LandingPage />
+              </AuthUser>
+            }
+          ></Route>
           <Route path="user/*" element={<UserWrapper></UserWrapper>}></Route>
           <Route path="admin/*" element={<AdminWrapper />}></Route>
         </Routes>
