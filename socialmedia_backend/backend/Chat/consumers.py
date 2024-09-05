@@ -74,16 +74,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
             image_data = text_data_json.get('image', None)
             video_data = text_data_json.get('video', None)
             
-            # Handle image and video data
+            # # Handle image and video data
             image_file = None
             video_file = None
+            # Log the incoming media data
+            # image_data = text_data_json.get('image', None)
+            # video_data = text_data_json.get('video', None)
 
             if image_data:
+                print("the data reciver image")
                 format, imgstr = image_data.split(';base64,') 
                 ext = format.split('/')[-1] 
                 image_file = ContentFile(base64.b64decode(imgstr), name=f'{user.username}_{self.room_id}.{ext}')
             
             if video_data:
+                print("the data is video recived")
                 format, vidstr = video_data.split(';base64,') 
                 ext = format.split('/')[-1]
                 video_file = ContentFile(base64.b64decode(vidstr), name=f'{user.username}_{self.room_id}.{ext}')
@@ -98,8 +103,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'message': message_text,
                     # 'image': image_file.url if image_file else None,
                     # 'video': video_file.url if video_file else None,
-                    'image':  image_file.url if image_file else None,
-                    'video': video_file.url if video_file else None,
+                    'image': new_message.image.url if new_message.image else None,
+                    'video': new_message.video.url if new_message.video else None,
                     'room_id': self.room_id,
                     'sender_email': email,
                     'created': timesince(new_message.created_at),

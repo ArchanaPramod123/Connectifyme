@@ -27,7 +27,6 @@ class MessageSerializer(serializers.ModelSerializer):
     def get_created(self,obj):
         return timesince(obj.created_at)
     
-
     
     def get_image_url(self, obj):
         if obj.image:
@@ -48,6 +47,7 @@ class RoomListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Room
         fields = "__all__"
+    
 
     def get_unseen_message_count(self,obj):
         user = self.context['request'].user
