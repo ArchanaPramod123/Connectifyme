@@ -30,25 +30,40 @@ class CreateChatRoom(APIView):
         serializer = RoomSerializer(chat_room)
         return Response(serializer.data,status=status.HTTP_201_CREATED)
 
+# class RoomMessageView(APIView):
+#     print("the message is entered")
+#     permission_classes = [permissions.IsAuthenticated]
+#     serializer_class = MessageSerializer
+
+#     def get(self,request,pk):
+#         print("the room message view of get entered")
+#         try:
+#             room= Room.objects.get(pk=pk)
+#             print("the get room",room)
+#             messages= Message.objects.filter(room=room)
+#             print("the message room",messages)
+#             serialized_messages = self.serializer_class(messages,many=True).data
+#             print("the serilizer of the messages of the ",serialized_messages)
+#             return Response(serialized_messages,status=status.HTTP_200_OK)
+#         except Room.DoesNotExist:
+#             return Response('room not found', status=status.HTTP_404_NOT_FOUND)
+#         except Exception as e:
+#             return Response(str(e), status= status.HTTP_500_INTERNAL_SERVER_ERROR)
 class RoomMessageView(APIView):
-    print("the message is entered")
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = MessageSerializer
 
-    def get(self,request,pk):
-        print("the room message view of get entered")
+    def get(self, request, pk):
         try:
-            room= Room.objects.get(pk=pk)
-            print("the get room",room)
-            messages= Message.objects.filter(room=room)
-            print("the message room",messages)
-            serialized_messages = self.serializer_class(messages,many=True).data
-            print("the serilizer of the messages of the ",serialized_messages)
-            return Response(serialized_messages,status=status.HTTP_200_OK)
+            room = Room.objects.get(pk=pk)
+            messages = Message.objects.filter(room=room)
+            serialized_messages = self.serializer_class(messages, many=True, context={'request': request}).data
+            return Response(serialized_messages, status=status.HTTP_200_OK)
         except Room.DoesNotExist:
-            return Response('room not found', status=status.HTTP_404_NOT_FOUND)
+            return Response('Room not found', status=status.HTTP_404_NOT_FOUND)
         except Exception as e:
-            return Response(str(e), status= status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response(str(e), status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 class MessageSeenView(APIView):
     permission_classes = [permissions.IsAuthenticated]

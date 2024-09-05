@@ -15,9 +15,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f'chat_{self.room_id}'
 
         await self.channel_layer.group_add(self.room_group_name,self.channel_name)
-
         await self.accept()
-
         self.send(text_data=json.dumps({'status':'connected'}))
 
     async def disconnect(self, close_code):
@@ -74,12 +72,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             image_data = text_data_json.get('image', None)
             video_data = text_data_json.get('video', None)
             
-            # # Handle image and video data
             image_file = None
             video_file = None
-            # Log the incoming media data
-            # image_data = text_data_json.get('image', None)
-            # video_data = text_data_json.get('video', None)
 
             if image_data:
                 print("the data reciver image")
@@ -99,10 +93,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 self.room_group_name,
                 {
                     'type': 'chat_message',
-                    # 'message': message_text,
                     'message': message_text,
-                    # 'image': image_file.url if image_file else None,
-                    # 'video': video_file.url if video_file else None,
                     'image': new_message.image.url if new_message.image else None,
                     'video': new_message.video.url if new_message.video else None,
                     'room_id': self.room_id,
